@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>Our Little Book of Memories</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Pinyon+Script&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#D9B7B3; --bg-deep:#B58584; --on-bg:#3A1C29; --on-bg-soft:#6A4552; --bar:rgba(217,183,179,.86);
+  --paper:#F7EAE2; --paper-edge:#E3CBBE; --ink:#2E2340; --ink-soft:#6B5866; --rule:rgba(46,35,64,.16);
+  --leather:#4A1421; --gold:#C9A14E; --gold-soft:rgba(201,161,78,.55);
+  --seal:#8C1C2E; --seal-light:#B8404F; --sage:#7D8A6B;
+  --serif:"IM Fell English","Iowan Old Style",Georgia,"Times New Roman",serif;
+  --script:"Pinyon Script","Snell Roundhand","Apple Chancery",cursive;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--bg:#2A0C15;--bg-deep:#13040A;--on-bg:#F2DFD7;--on-bg-soft:#CDAAA8;--bar:rgba(42,12,21,.86);color-scheme:dark}
+}
+:root[data-theme="dark"]{--bg:#2A0C15;--bg-deep:#13040A;--on-bg:#F2DFD7;--on-bg-soft:#CDAAA8;--bar:rgba(42,12,21,.86);color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px)}
+body{margin:0;min-height:100%;display:flex;flex-direction:column;background-color:var(--bg);
+  background-image:radial-gradient(ellipse at 50% 30%,transparent 35%,var(--bg-deep) 130%);background-attachment:fixed;
+  color:var(--on-bg);font-family:var(--serif);font-size:18px;line-height:1.6;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+body.has-bar::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bar);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+[hidden]{display:none!important}
+main{flex:1;display:flex;flex-direction:column}
+.view{display:none;flex:1;flex-direction:column;align-items:center}
+.view.active{display:flex}
+
+.btn{background:var(--seal);color:#F7EAE2;border:0;border-radius:6px;padding:11px 22px;font-size:17px;font-style:italic;cursor:pointer;
+  box-shadow:inset 0 0 0 1px rgba(255,220,180,.35),0 10px 22px -12px rgba(60,5,20,.7);transition:background .2s}
+.btn:hover{background:var(--seal-light)}
+.btn:disabled{opacity:.6;cursor:default}
+.ghost{background:transparent;border:1px solid currentColor;border-radius:6px;padding:9px 16px;font-size:15px;font-style:italic;cursor:pointer;opacity:.85}
+.ghost:hover{opacity:1}
+.link{background:none;border:0;padding:4px 2px;font-style:italic;cursor:pointer;text-decoration:underline;text-underline-offset:3px;color:inherit}
+
+.paper{position:relative;background:var(--paper);color:var(--ink);border-radius:2px;
+  box-shadow:0 1px 0 var(--paper-edge),0 30px 60px -28px rgba(30,5,12,.65),inset 0 0 80px rgba(150,96,70,.2)}
+
+/* ---------- cover ---------- */
+#cover{justify-content:center;gap:22px;padding:40px 18px 52px}
+.book{position:relative;width:min(80vw,360px);aspect-ratio:3/4;perspective:1800px}
+.plate{position:absolute;inset:0;border-radius:3px 8px 8px 3px;padding:30px 26px;display:flex;flex-direction:column;justify-content:center;text-align:center}
+.plate .orn{width:120px;margin:0 auto 4px;display:block;color:var(--gold)}
+.plate .belongs{font-family:var(--script);font-size:clamp(30px,8vw,38px);line-height:1.1;margin:0}
+.plate .owners{font-style:italic;font-size:21px;margin:2px 0 18px;color:var(--ink-soft)}
+.plate label{display:block;text-align:left;font-style:italic;font-size:14px;color:var(--ink-soft);margin-top:6px}
+.plate input{width:100%;background:transparent;border:0;border-bottom:1.5px solid var(--ink-soft);padding:5px 2px;font-size:17px;color:var(--ink);margin-bottom:6px}
+.plate input:focus{outline:none;border-bottom-color:var(--seal)}
+.plate .btn{margin-top:14px;width:100%}
+.plate .msg{min-height:1.4em;margin:10px 0 0;font-size:14px;font-style:italic;color:var(--seal)}
+.plate .demo-note{font-size:14px;font-style:italic;color:var(--ink-soft);margin:0 0 6px}
+.cover{position:absolute;inset:0;z-index:2;transform-origin:left center;transform-style:preserve-3d;
+  transition:transform 1.3s cubic-bezier(.6,.05,.25,1),opacity .45s ease 1.05s}
+.book.open .cover{transform:rotateY(-168deg);opacity:0;pointer-events:none}
+.face{position:absolute;inset:0;border-radius:3px 10px 10px 3px;-webkit-backface-visibility:hidden;backface-visibility:hidden;overflow:hidden}
+.front{background-color:var(--leather);
+  background-image:linear-gradient(to right,rgba(0,0,0,.45),rgba(0,0,0,0) 9%,rgba(255,255,255,.05) 10%,rgba(0,0,0,0) 12%),
+    radial-gradient(circle at 30% 18%,rgba(255,255,255,.08),transparent 55%),
+    radial-gradient(circle at 80% 92%,rgba(0,0,0,.4),transparent 60%),
+    repeating-radial-gradient(circle at 40% 40%,rgba(0,0,0,.06) 0 1px,transparent 1px 3px);
+  box-shadow:0 30px 50px -24px rgba(10,0,4,.8),inset 0 0 40px rgba(0,0,0,.35);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 34px 0 44px}
+.front::before,.front::after{content:"";position:absolute;border-radius:4px;pointer-events:none}
+.front::before{inset:16px 16px 16px 26px;border:1.5px solid var(--gold-soft)}
+.front::after{inset:22px 22px 22px 32px;border:1px solid rgba(201,161,78,.3)}
+.front .orn{width:110px;color:var(--gold);opacity:.9}
+.front h1{font-family:var(--script);font-weight:400;color:#D8B56C;font-size:clamp(36px,10vw,50px);line-height:1.05;margin:10px 0;
+  text-shadow:0 1px 0 rgba(0,0,0,.55),0 -1px 0 rgba(255,230,170,.2)}
+.front .sub{font-style:italic;color:rgba(216,181,108,.8);font-size:16px;margin:0}
+.back{transform:rotateY(180deg);
+  background-color:#5E1A2A;
+  background-image:radial-gradient(ellipse at 20% 30%,rgba(201,161,78,.25),transparent 40%),radial-gradient(ellipse at 70% 70%,rgba(184,64,79,.5),transparent 45%),
+    radial-gradient(ellipse at 40% 85%,rgba(30,6,12,.6),transparent 40%),radial-gradient(ellipse at 85% 15%,rgba(247,234,226,.12),transparent 35%)}
+.strap{position:absolute;right:-8px;top:50%;width:58px;height:70px;transform:translateY(-50%);border-radius:10px 0 0 10px;z-index:3;
+  background:linear-gradient(to bottom,#3A0F1A,#2A0A12);box-shadow:-4px 6px 12px -4px rgba(0,0,0,.6)}
+.seal{position:absolute;left:-26px;top:50%;width:62px;height:62px;transform:translateY(-50%);border:0;background:none;padding:0;cursor:pointer;border-radius:50%;
+  animation:breathe 2.8s ease-in-out infinite}
+.seal svg{width:100%;height:100%;display:block;filter:drop-shadow(0 4px 4px rgba(20,0,6,.5))}
+@keyframes breathe{50%{transform:translateY(-50%) scale(1.07)}}
+.cover-hint{margin:0;font-style:italic;color:var(--on-bg-soft)}
+
+/* ---------- app bar ---------- */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:10px max(16px,calc((100% - 720px)/2));background:var(--bar);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.bar .home{background:none;border:0;padding:0;cursor:pointer;font-family:var(--script);font-size:clamp(24px,6.5vw,30px);line-height:1;color:var(--on-bg);white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.bar .acts{display:flex;gap:8px;align-items:center;flex-shrink:0}
+.bar button{white-space:nowrap}
+.bar .ghost{padding:7px 10px;font-size:14px}
+.bar .btn{padding:8px 12px;font-size:15px}
+.demo-banner{width:min(94vw,680px);margin:14px 0 0;padding:10px 14px;border:1px dashed var(--on-bg-soft);border-radius:6px;font-size:14px;font-style:italic;color:var(--on-bg-soft);text-align:center}
+
+/* ---------- contents ---------- */
+#contents{padding:0 0 60px}
+.otd{width:min(94vw,680px);margin:22px 0 0;padding:16px 20px;text-align:left;cursor:pointer;border:0;transform:rotate(-.6deg);display:flex;gap:14px;align-items:center}
+.otd::before{content:"";position:absolute;top:-10px;left:40px;width:64px;height:20px;background:rgba(125,138,107,.55);transform:rotate(-4deg)}
+.otd .when{font-family:var(--script);font-size:28px;line-height:1;margin:0}
+.otd .what{margin:2px 0 0;font-style:italic;color:var(--ink-soft);font-size:16px}
+.toc{width:min(94vw,680px);margin:26px 0 0;padding:clamp(26px,6vw,46px) clamp(18px,5vw,44px)}
+.toc h2{font-family:var(--script);font-weight:400;font-size:clamp(44px,11vw,60px);line-height:1;margin:0 0 6px;text-align:center}
+.toc .count{text-align:center;font-style:italic;color:var(--ink-soft);margin:0 0 10px;font-size:15px}
+.chapter{margin-top:26px}
+.chapter h3{font-family:var(--script);font-weight:400;font-size:clamp(30px,8vw,38px);line-height:1.1;margin:0;color:var(--seal)}
+.chapter .n{font-style:italic;color:var(--ink-soft);font-size:14px;margin:0 0 6px}
+.entry{display:grid;grid-template-columns:62px 1fr auto;gap:14px;align-items:center;width:100%;text-align:left;background:none;border:0;
+  border-bottom:1px dashed var(--rule);padding:12px 2px;cursor:pointer;color:var(--ink)}
+.entry:last-child{border-bottom:0}
+.thumb{width:62px;height:62px;background:#FBF6F1;padding:4px;box-shadow:0 6px 12px -6px rgba(30,5,12,.6);transform:rotate(var(--r,-3deg))}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb.none{display:grid;place-items:center;background:#EFDDD2;color:var(--sage)}
+.thumb.none svg{width:30px}
+.entry .t{font-size:19px;line-height:1.25;display:block}
+.entry .p{font-size:15px;font-style:italic;color:var(--ink-soft);display:block;margin-top:2px}
+.entry .d{text-align:center;line-height:1}
+.entry .d b{display:block;font-weight:400;font-size:26px}
+.entry .d i{font-size:13px;color:var(--ink-soft)}
+.empty{text-align:center;padding:20px 0 6px}
+.empty p{font-style:italic;color:var(--ink-soft);margin:0 0 16px}
+
+/* ---------- memory page ---------- */
+#memory{padding:0 0 60px}
+.page{width:min(94vw,680px);margin:26px 0 0;padding:clamp(30px,7vw,54px) clamp(22px,6vw,50px) clamp(26px,6vw,40px);
+  touch-action:pan-y;transition:transform .35s ease,opacity .35s ease}
+.page.out-l{transform:translateX(-40px) rotate(-1deg);opacity:0}
+.page.out-r{transform:translateX(40px) rotate(1deg);opacity:0}
+.page .date{font-style:italic;color:var(--ink-soft);margin:0;font-size:16px}
+.page h2{font-family:var(--script);font-weight:400;font-size:clamp(42px,11vw,60px);line-height:1.05;margin:4px 0 0;padding-right:84px}
+.stamp{position:absolute;top:26px;right:22px;width:92px;height:92px;border-radius:50%;border:2px solid var(--seal);color:var(--seal);opacity:.72;
+  display:grid;place-items:center;text-align:center;transform:rotate(12deg);font-size:12.5px;line-height:1.15;padding:10px;font-style:italic}
+.stamp::before{content:"";position:absolute;inset:4px;border-radius:50%;border:1px dashed var(--seal)}
+.collage{display:grid;grid-template-columns:repeat(2,1fr);gap:26px 16px;margin:26px 0 8px}
+.collage.one{grid-template-columns:1fr;max-width:380px;margin-inline:auto}
+.snap{position:relative;background:#FBF6F1;padding:8px 8px 22px;box-shadow:0 14px 26px -16px rgba(30,5,12,.75),0 1px 2px rgba(30,5,12,.18);
+  transform:rotate(var(--r));border:0;cursor:zoom-in;display:block;width:100%}
+.snap img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block}
+.snap::before{content:"";position:absolute;top:-11px;left:50%;width:68px;height:22px;transform:translateX(-50%) rotate(var(--tr));background:var(--tape);z-index:1}
+.note{margin-top:22px}
+.note p{margin:0 0 1em;font-size:19px;line-height:1.8}
+.sign{font-family:var(--script);font-size:30px;margin:10px 0 0;text-align:right;color:var(--ink-soft)}
+.pager{width:min(94vw,680px);display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:18px;flex-wrap:wrap}
+.pager .mid{display:flex;gap:8px}
+
+/* ---------- lightbox ---------- */
+.lightbox{position:fixed;inset:0;z-index:60;background:rgba(15,3,8,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  padding:calc(env(safe-area-inset-top,0px) + 16px) 12px calc(env(safe-area-inset-bottom,0px) + 16px);touch-action:pan-y}
+.lightbox img{max-width:94vw;max-height:76vh;object-fit:contain;box-shadow:0 20px 40px rgba(0,0,0,.5)}
+.lightbox .row{display:flex;gap:10px;align-items:center;color:#F2DFD7}
+.lightbox .ghost{color:#F2DFD7}
+.lightbox .c{font-style:italic;font-size:15px;min-width:64px;text-align:center}
+
+/* ---------- editor ---------- */
+.editor-wrap{position:fixed;inset:0;z-index:50;overflow-y:auto;background:rgba(20,4,10,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  padding:calc(env(safe-area-inset-top,0px) + 20px) 0 calc(env(safe-area-inset-bottom,0px) + 40px);display:flex;justify-content:center;align-items:flex-start}
+.editor{width:min(94vw,640px);padding:clamp(28px,6vw,46px) clamp(20px,6vw,44px)}
+.editor h2{font-family:var(--script);font-weight:400;font-size:clamp(40px,10vw,54px);line-height:1;margin:0 0 14px}
+.field{margin-top:16px}
+.field label{display:block;font-style:italic;font-size:15px;color:var(--ink-soft)}
+.field input[type=text],.field input[type=date]{width:100%;background:transparent;border:0;border-bottom:1.5px solid var(--ink-soft);padding:6px 2px;font-size:19px;color:var(--ink)}
+.field input:focus,.field textarea:focus{outline:none;border-bottom-color:var(--seal)}
+.field textarea{width:100%;min-height:224px;resize:vertical;background:transparent;border:0;border-bottom:1.5px solid var(--ink-soft);color:var(--ink);
+  font-size:19px;line-height:32px;padding:0 2px;background-image:repeating-linear-gradient(to bottom,transparent 0 31px,var(--rule) 31px 32px);background-attachment:local}
+.field .hint{font-size:14px;font-style:italic;color:var(--ink-soft);margin:6px 0 0}
+.photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:12px;margin-top:10px}
+.ph{position:relative;background:#FBF6F1;padding:5px 5px 30px;box-shadow:0 8px 14px -8px rgba(30,5,12,.6)}
+.ph img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.ph button{position:absolute;left:0;right:0;bottom:4px;background:none;border:0;font-size:13px;font-style:italic;color:var(--seal);cursor:pointer;text-decoration:underline}
+.add-photo{position:relative;display:grid;place-items:center;align-content:center;aspect-ratio:1/1.25;border:1.5px dashed var(--ink-soft);border-radius:4px;color:var(--ink-soft);font-style:italic;font-size:15px;cursor:pointer;text-align:center;padding:8px}
+.add-photo input{position:absolute;width:1px;height:1px;opacity:0}
+.ed-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-top:26px}
+.ed-actions .r{display:flex;gap:10px}
+.ed-msg{min-height:1.4em;margin:12px 0 0;font-style:italic;color:var(--seal);font-size:15px}
+
+/* ---------- sealed ---------- */
+.sealed{position:fixed;inset:0;z-index:70;display:grid;place-items:center;pointer-events:none}
+.sealed div{text-align:center;animation:stampIn .5s cubic-bezier(.3,1.4,.5,1) both}
+.sealed svg{width:150px;height:150px;filter:drop-shadow(0 10px 14px rgba(20,0,6,.55))}
+.sealed p{font-family:var(--script);font-size:44px;margin:4px 0 0;color:#F2DFD7;text-shadow:0 2px 10px rgba(0,0,0,.6)}
+.sealed.bye{animation:fadeOut .6s ease forwards}
+@keyframes stampIn{0%{transform:scale(2.4);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes fadeOut{to{opacity:0}}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.15s!important;transition-delay:0s!important}
+}
+</style>
+</head>
+<body>
+<main>
+
+  <!-- Cover -->
+  <section class="view active" id="cover" aria-label="Book cover">
+    <div class="book" id="book">
+      <div class="paper plate">
+        <svg class="orn" viewBox="0 0 120 20" aria-hidden="true"><path d="M2 10h44M74 10h44M60 3c-5 0-8 3-8 7s3 7 8 7 8-3 8-7-3-7-8-7z" stroke="currentColor" stroke-width="1.2" fill="none"/><circle cx="60" cy="10" r="2.2" fill="currentColor"/></svg>
+        <p class="belongs">This book belongs to</p>
+        <p class="owners" id="owners"></p>
+        <form id="loginForm" autocomplete="on">
+          <p class="demo-note" id="demoNote" hidden>Preview mode: no account needed yet. Just tap Open the book.</p>
+          <label for="email">Email</label>
+          <input id="email" type="email" autocomplete="username" inputmode="email">
+          <label for="pw">Password</label>
+          <input id="pw" type="password" autocomplete="current-password">
+          <button class="btn" type="button" id="loginBtn">Open the book</button>
+          <p class="msg" id="loginMsg" aria-live="polite"></p>
+        </form>
+      </div>
+      <div class="cover" id="coverLid">
+        <div class="face front">
+          <svg class="orn" viewBox="0 0 120 20" aria-hidden="true"><path d="M2 10h44M74 10h44M60 3c-5 0-8 3-8 7s3 7 8 7 8-3 8-7-3-7-8-7z" stroke="currentColor" stroke-width="1.2" fill="none"/><circle cx="60" cy="10" r="2.2" fill="currentColor"/></svg>
+          <h1 id="bookTitle"></h1>
+          <p class="sub" id="coverSub"></p>
+          <div class="strap"><button class="seal" id="openSeal" aria-label="Open the book"></button></div>
+        </div>
+        <div class="face back"></div>
+      </div>
+    </div>
+    <p class="cover-hint" id="coverHint">Tap the seal to open</p>
+  </section>
+
+  <!-- Contents -->
+  <section class="view" id="contents" aria-labelledby="tocTitle">
+    <header class="bar">
+      <button class="home" data-go="contents">Our little book</button>
+      <div class="acts">
+        <button class="ghost" id="randomBtn">Random page</button>
+        <button class="btn" data-new>New page</button>
+      </div>
+    </header>
+    <p class="demo-banner" id="demoBanner" hidden>Preview mode. These are sample pages, and anything you add disappears when you refresh.</p>
+    <button class="paper otd" id="otd" hidden></button>
+    <div class="paper toc">
+      <h2 id="tocTitle">Contents</h2>
+      <p class="count" id="tocCount"></p>
+      <div id="chapters"></div>
+    </div>
+    <p style="margin-top:22px"><button class="link" id="signOut">Close the book</button></p>
+  </section>
+
+  <!-- Memory -->
+  <section class="view" id="memory" aria-label="Memory">
+    <header class="bar">
+      <button class="home" data-go="contents">Our little book</button>
+      <div class="acts">
+        <button class="ghost" id="editBtn">Edit page</button>
+        <button class="btn" data-new>New page</button>
+      </div>
+    </header>
+    <article class="paper page" id="page"></article>
+    <nav class="pager" aria-label="Turn pages">
+      <button class="ghost" id="olderBtn">Older page</button>
+      <button class="link" data-go="contents">Contents</button>
+      <button class="ghost" id="newerBtn">Newer page</button>
+    </nav>
+  </section>
+</main>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Photo">
+  <img id="lbImg" alt="">
+  <div class="row">
+    <button class="ghost" id="lbPrev">Previous</button>
+    <span class="c" id="lbCount"></span>
+    <button class="ghost" id="lbNext">Next</button>
+  </div>
+  <button class="ghost" id="lbClose" style="color:#F2DFD7">Close</button>
+</div>
+
+<!-- Editor -->
+<div class="editor-wrap" id="editorWrap" hidden role="dialog" aria-modal="true" aria-labelledby="edTitle">
+  <form class="paper editor" id="editor" novalidate>
+    <h2 id="edTitle">A new page</h2>
+    <div class="field"><label for="fDate">Date</label><input id="fDate" type="date" required></div>
+    <div class="field"><label for="fTitle">Title</label><input id="fTitle" type="text" maxlength="120" placeholder="What happened?"></div>
+    <div class="field"><label for="fPlace">Place (optional)</label><input id="fPlace" type="text" maxlength="60" placeholder="Where were you?"></div>
+    <div class="field"><label for="fNote">What you want to remember</label><textarea id="fNote"></textarea></div>
+    <div class="field">
+      <label>Photos</label>
+      <div class="photos" id="fPhotos"></div>
+      <p class="hint">The first photo shows in the contents. Photos are resized before saving.</p>
+    </div>
+    <p class="ed-msg" id="edMsg" aria-live="polite"></p>
+    <div class="ed-actions">
+      <button class="link" type="button" id="delBtn" hidden>Delete this page</button>
+      <span></span>
+      <div class="r">
+        <button class="ghost" type="button" id="cancelBtn">Cancel</button>
+        <button class="btn" type="button" id="saveBtn">Seal this page</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
+<script>
+/* ============================================================
+   SETTINGS
+   ============================================================ */
+const BOOK = {
+  title: "Our Little Book of Memories",
+  owners: "Carl & Madam",
+  coverLine: "Pages we never want to forget"
+};
+// Phase 2: paste your Supabase project URL and public (anon) key here.
+// While these are empty, the book runs in preview mode with sample pages.
+const SUPABASE = { url: "https://qhamzffiqoghvbmsbxut.supabase.co", anonKey: "sb_publishable_aH897lL4qKf9M0mKDptK_Q_11J9lxXI" };
+/* ============================================================ */
+
+const DEMO = !SUPABASE.url;
+const LIB_MISSING = !DEMO && !window.supabase;
+const H = {
+  depth: 0,
+  push(st){ try { history.pushState(st, ''); this.depth++; } catch {} },
+  replace(st){ try { history.replaceState(st, ''); } catch {} },
+  back(){ if (this.depth > 0){ this.depth--; try { history.back(); } catch {} } }
+};
+const $ = s => document.querySelector(s);
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const rand = (a, b) => a + Math.random() * (b - a);
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const parseDate = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const longDate = s => { const d = parseDate(s); return `${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`; };
+const todayISO = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+
+/* ---------- wax seal ---------- */
+function sealSVG(id){
+  const n = 16, pts = [];
+  for (let i = 0; i < n; i++){
+    const a = i / n * Math.PI * 2, r = 45 + (i % 2 ? 3 : -1.5) + Math.sin(i * 2.7) * 1.6;
+    pts.push([50 + r * Math.cos(a), 50 + r * Math.sin(a)]);
+  }
+  const mid = (p, q) => [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2];
+  const m0 = mid(pts[n - 1], pts[0]);
+  let d = `M${m0[0].toFixed(1)},${m0[1].toFixed(1)}`;
+  for (let i = 0; i < n; i++){ const p = pts[i], q = mid(p, pts[(i + 1) % n]); d += ` Q${p[0].toFixed(1)},${p[1].toFixed(1)} ${q[0].toFixed(1)},${q[1].toFixed(1)}`; }
+  return `<svg viewBox="0 0 100 100" aria-hidden="true"><defs><radialGradient id="${id}" cx="36%" cy="30%" r="78%">
+    <stop offset="0" stop-color="#BE4757"/><stop offset=".55" stop-color="#8C1C2E"/><stop offset="1" stop-color="#550C19"/></radialGradient></defs>
+    <path d="${d}" fill="url(#${id})"/><circle cx="50" cy="50" r="30" fill="none" stroke="#550C19" stroke-width="2.5" opacity=".7"/>
+    <path d="M50 66s-15-9.2-15-19.8A8.3 8.3 0 0 1 50 40.4a8.3 8.3 0 0 1 15 5.8C65 56.8 50 66 50 66z" fill="#550C19" opacity=".9"/>
+    <path d="M49 65s-15-9.2-15-19.8A8.3 8.3 0 0 1 49 39.4" fill="none" stroke="#F3B3B3" stroke-width=".8" opacity=".35"/></svg>`;
+}
+const flower = '<svg viewBox="0 0 40 40" aria-hidden="true"><g fill="currentColor"><circle cx="20" cy="11" r="6"/><circle cx="29" cy="18" r="6"/><circle cx="25" cy="28" r="6"/><circle cx="15" cy="28" r="6"/><circle cx="11" cy="18" r="6"/></g><circle cx="20" cy="20" r="4" fill="#EFDDD2"/></svg>';
+
+/* ---------- sample artwork (preview only) ---------- */
+function art(kind){
+  const svgs = {
+    sunset: `<defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F4B98E"/><stop offset=".45" stop-color="#C8435A"/><stop offset="1" stop-color="#5C1830"/></linearGradient><linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4A1F38"/><stop offset="1" stop-color="#1E0D1C"/></linearGradient></defs><rect width="400" height="500" fill="url(#a)"/><circle cx="200" cy="300" r="64" fill="#FFD9A6"/><rect y="320" width="400" height="180" fill="url(#b)"/><g fill="#FFC690" opacity=".55"><rect x="140" y="340" width="120" height="4" rx="2"/><rect x="160" y="362" width="80" height="3" rx="1.5"/><rect x="175" y="384" width="50" height="3" rx="1.5"/></g>`,
+    city: `<rect width="400" height="500" fill="#1C1430"/><g opacity=".75"><circle cx="70" cy="120" r="34" fill="#C9A14E" opacity=".5"/><circle cx="300" cy="90" r="44" fill="#B8404F" opacity=".45"/><circle cx="210" cy="230" r="28" fill="#F3C98B" opacity=".55"/><circle cx="110" cy="320" r="52" fill="#8C1C2E" opacity=".5"/><circle cx="320" cy="300" r="30" fill="#E9A9A6" opacity=".5"/><circle cx="240" cy="420" r="40" fill="#C9A14E" opacity=".35"/></g><path d="M0 500V380h40v-60h30v80h40v-120h50v140h30v-90h60v110h40v-70h50v120h60v-40z" fill="#0D0817"/>`,
+    sky: `<defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8DB6DE"/><stop offset="1" stop-color="#CFE3F2"/></linearGradient></defs><rect width="400" height="500" fill="url(#a)"/><g fill="#fff" opacity=".8"><ellipse cx="110" cy="160" rx="90" ry="26"/><ellipse cx="160" cy="140" rx="60" ry="30"/><ellipse cx="300" cy="300" rx="100" ry="24"/><ellipse cx="260" cy="284" rx="56" ry="26"/></g>`,
+    cafe: `<rect width="400" height="500" fill="#7A4632"/><rect y="0" width="400" height="190" fill="#EAD3C2"/><ellipse cx="200" cy="320" rx="120" ry="36" fill="#F4E6DC"/><ellipse cx="200" cy="306" rx="70" ry="22" fill="#FBF6F1"/><ellipse cx="200" cy="300" rx="54" ry="15" fill="#6B3A22"/><path d="M186 296c6-6 22-6 28 0-6 5-22 5-28 0z" fill="#E9C9A6" opacity=".8"/><path d="M270 300c20 0 24 22 2 26" stroke="#F4E6DC" stroke-width="9" fill="none"/>`,
+    garden: `<rect width="400" height="500" fill="#2F4A33"/><g fill="#5F8A5A" opacity=".85"><ellipse cx="60" cy="80" rx="70" ry="16" transform="rotate(-30 60 80)"/><ellipse cx="320" cy="120" rx="80" ry="18" transform="rotate(25 320 120)"/><ellipse cx="160" cy="210" rx="90" ry="20" transform="rotate(-15 160 210)"/><ellipse cx="300" cy="330" rx="86" ry="18" transform="rotate(40 300 330)"/><ellipse cx="90" cy="400" rx="80" ry="18" transform="rotate(-40 90 400)"/></g><g fill="#9CC48A" opacity=".55"><ellipse cx="220" cy="90" rx="50" ry="10" transform="rotate(10 220 90)"/><ellipse cx="120" cy="300" rx="60" ry="12" transform="rotate(30 120 300)"/><ellipse cx="260" cy="450" rx="70" ry="12" transform="rotate(-20 260 450)"/></g><g fill="#FFF3C4" opacity=".35"><circle cx="250" cy="200" r="12"/><circle cx="140" cy="140" r="7"/><circle cx="330" cy="240" r="9"/></g>`
+  };
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500">${svgs[kind]}</svg>`);
+}
+
+/* ---------- data: preview store (Phase 3 adds the Supabase store) ---------- */
+function sampleData(){
+  const t = new Date(), lastYear = `${t.getFullYear() - 1}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+  const P = k => ({ id: 'p' + Math.random().toString(36).slice(2), url: art(k) });
+  return [
+    { id: 's1', date: '2026-10-03', title: 'Sunset by the bay', place: 'Seaside', author: 'Carl', photos: [P('sunset'), P('city'), P('sky')],
+      note: "This is a sample page, so you can see how a memory looks.\n\nWrite whatever you want to remember about the day: where you went, what you ate, the little things she said, how it felt on the way home.\n\nLong notes turn into paragraphs like this one." },
+    { id: 's2', date: '2026-10-05', title: 'The first official day', place: '', author: 'Carl', photos: [P('cafe')],
+      note: "A sample page with a single photo. Short notes look good too." },
+    { id: 's3', date: '2026-10-12', title: 'Errands, but make it a date', place: 'Around the city', author: 'Carl', photos: [P('garden'), P('cafe')],
+      note: "Two photos sit side by side. Tap any photo to see it full screen, and swipe the page to turn to the next memory." },
+    { id: 's4', date: '2026-09-20', title: 'A quiet Sunday', place: '', author: 'Carl', photos: [],
+      note: "A page with no photos at all. Some memories are just words." },
+    { id: 's5', date: lastYear, title: 'One year ago today', place: '', author: 'Carl', photos: [P('sky')],
+      note: "A sample memory from exactly one year ago, so you can see the \"On this day\" note at the top of the contents." }
+  ];
+}
+const DemoStore = {
+  data: sampleData(), user: null,
+  async session(){ return this.user; },
+  async signIn(){ this.user = { name: 'Carl' }; return this.user; },
+  async signOut(){ this.user = null; },
+  async list(){ return this.data.map(m => ({ ...m, photos: [...m.photos] })); },
+  async save(m, keepPhotos, newBlobs){
+    const photos = [...keepPhotos, ...newBlobs.map(b => ({ id: 'p' + Math.random().toString(36).slice(2), url: URL.createObjectURL(b) }))];
+    if (m.id){ const i = this.data.findIndex(x => x.id === m.id); this.data[i] = { ...this.data[i], ...m, photos }; return this.data[i]; }
+    const rec = { ...m, id: 'm' + Date.now(), author: this.user ? this.user.name : 'Carl', photos };
+    this.data.push(rec); return rec;
+  },
+  async remove(id){ this.data = this.data.filter(m => m.id !== id); }
+};
+/* ---------- data: Supabase store ---------- */
+const sb = (DEMO || LIB_MISSING) ? null : window.supabase.createClient(SUPABASE.url, SUPABASE.anonKey, { auth: { persistSession: true, autoRefreshToken: true } });
+const names = {};
+const BUCKET = 'memories';
+const SupaStore = {
+  async session(){ const { data } = await sb.auth.getSession(); return data.session ? data.session.user : null; },
+  async signIn(email, password){
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    return data.user;
+  },
+  async signOut(){ await sb.auth.signOut(); },
+  async list(){
+    const [mem, mb] = await Promise.all([
+      sb.from('memories').select('id,date,title,place,note,author_id,created_at,memory_photos(id,path,position)').order('date', { ascending: false }),
+      sb.from('members').select('user_id,display_name')
+    ]);
+    if (mem.error) throw mem.error;
+    (mb.data || []).forEach(m => names[m.user_id] = m.display_name);
+    const paths = mem.data.flatMap(m => (m.memory_photos || []).map(p => p.path));
+    const urls = {};
+    for (let i = 0; i < paths.length; i += 100){
+      const { data, error } = await sb.storage.from(BUCKET).createSignedUrls(paths.slice(i, i + 100), 60 * 60 * 12);
+      if (error) throw error;
+      (data || []).forEach(d => { if (d.signedUrl) urls[d.path] = d.signedUrl; });
+    }
+    return mem.data.map(m => ({
+      id: m.id, date: m.date, title: m.title, place: m.place || '', note: m.note || '',
+      author: names[m.author_id] || '', created: m.created_at,
+      photos: (m.memory_photos || []).sort((a, b) => a.position - b.position).filter(p => urls[p.path]).map(p => ({ id: p.id, path: p.path, url: urls[p.path] }))
+    }));
+  },
+  async save(m, keep, blobs){
+    let id = m.id;
+    const row = { date: m.date, title: m.title, place: m.place || null, note: m.note || null };
+    if (id){
+      const { error } = await sb.from('memories').update(row).eq('id', id);
+      if (error) throw error;
+    } else {
+      const { data, error } = await sb.from('memories').insert(row).select('id').single();
+      if (error) throw error;
+      id = data.id;
+    }
+    const { data: existing, error: exErr } = await sb.from('memory_photos').select('id,path').eq('memory_id', id);
+    if (exErr) throw exErr;
+    const keepIds = new Set(keep.map(p => p.id));
+    const gone = (existing || []).filter(p => !keepIds.has(p.id));
+    if (gone.length){
+      await sb.storage.from(BUCKET).remove(gone.map(p => p.path));
+      const { error } = await sb.from('memory_photos').delete().in('id', gone.map(p => p.id));
+      if (error) throw error;
+    }
+    for (let i = 0; i < keep.length; i++){
+      const { error } = await sb.from('memory_photos').update({ position: i }).eq('id', keep[i].id);
+      if (error) throw error;
+    }
+    for (let j = 0; j < blobs.length; j++){
+      const path = `${id}/${Date.now()}-${j}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+      const up = await sb.storage.from(BUCKET).upload(path, blobs[j], { contentType: 'image/jpeg', upsert: false });
+      if (up.error) throw up.error;
+      const ins = await sb.from('memory_photos').insert({ memory_id: id, path, position: keep.length + j });
+      if (ins.error) throw ins.error;
+    }
+    return { id };
+  },
+  async remove(id){
+    const { data } = await sb.from('memory_photos').select('path').eq('memory_id', id);
+    if (data && data.length) await sb.storage.from(BUCKET).remove(data.map(p => p.path));
+    const { error } = await sb.from('memories').delete().eq('id', id);
+    if (error) throw error;
+  }
+};
+const Store = DEMO ? DemoStore : SupaStore;
+
+/* ---------- photo compression ---------- */
+async function compress(file, max = 1600, q = .82){
+  let src, w, h;
+  try { src = await createImageBitmap(file, { imageOrientation: 'from-image' }); w = src.width; h = src.height; }
+  catch {
+    src = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = URL.createObjectURL(file); });
+    w = src.naturalWidth; h = src.naturalHeight;
+  }
+  const s = Math.min(1, max / Math.max(w, h));
+  const c = document.createElement('canvas'); c.width = Math.round(w * s); c.height = Math.round(h * s);
+  c.getContext('2d').drawImage(src, 0, 0, c.width, c.height);
+  return await new Promise(r => c.toBlob(r, 'image/jpeg', q));
+}
+
+/* ---------- state & navigation ---------- */
+let memories = [], current = null;
+const sorted = () => [...memories].sort((a, b) => b.date.localeCompare(a.date) || String(b.created || b.id).localeCompare(String(a.created || a.id)));
+function showView(id){
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === id));
+  document.body.classList.toggle('has-bar', id !== 'cover');
+  window.scrollTo(0, 0);
+}
+function go(view, id, push = true){
+  if (view === 'contents'){ renderContents(); showView('contents'); }
+  else if (view === 'memory'){ if (renderMemory(id)) showView('memory'); else { renderContents(); showView('contents'); } }
+  else showView('cover');
+  if (push) H.push({ view, id }, '');
+}
+addEventListener('popstate', e => {
+  if (H.depth > 0) H.depth--;
+  if (!$('#lightbox').hidden){ closeLightbox(false); return; }
+  if (!$('#editorWrap').hidden){ closeEditor(false); return; }
+  const s = e.state || { view: 'cover' };
+  if (s.view !== 'cover' && !userIn) { H.replace({ view: 'cover' }, ''); showView('cover'); return; }
+  go(s.view, s.id, false);
+});
+document.addEventListener('click', e => {
+  const g = e.target.closest('[data-go]'); if (g) go(g.dataset.go);
+  if (e.target.closest('[data-new]')) openEditor(null);
+});
+
+/* ---------- cover & login ---------- */
+let userIn = false;
+document.title = BOOK.title;
+$('#bookTitle').textContent = BOOK.title;
+$('#coverSub').textContent = BOOK.coverLine;
+$('#owners').textContent = BOOK.owners;
+$('#openSeal').innerHTML = sealSVG('s-open');
+if (DEMO){ $('#demoNote').hidden = false; $('#demoBanner').hidden = false; }
+
+$('#openSeal').addEventListener('click', () => {
+  $('#book').classList.add('open');
+  $('#coverHint').hidden = true;
+  if (userIn){ setTimeout(() => { H.replace({ view: 'cover' }); go('contents'); }, reduce ? 50 : 1200); return; }
+  setTimeout(() => (DEMO ? $('#loginBtn') : $('#email')).focus({ preventScroll: true }), reduce ? 50 : 1200);
+});
+const doLogin = async e => {
+  if (e) e.preventDefault();
+  if ($('#loginBtn').disabled) return;
+  const btn = $('#loginBtn'); btn.disabled = true; $('#loginMsg').textContent = '';
+  try {
+    await Store.signIn($('#email').value.trim(), $('#pw').value);
+    userIn = true;
+    memories = await Store.list();
+    H.replace({ view: 'cover' }, '');
+    go('contents');
+  } catch (err){
+    const msg = String((err && err.message) || '');
+    $('#loginMsg').textContent = /invalid login|credentials/i.test(msg)
+      ? 'That email and password don\u2019t match. Try again.'
+      : 'The book couldn\u2019t be reached. Check your connection, then try again.';
+  } finally { btn.disabled = false; }
+};
+$('#loginForm').addEventListener('submit', doLogin);
+$('#loginBtn').addEventListener('click', doLogin);
+['#email', '#pw'].forEach(q => $(q).addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(e); }));
+$('#signOut').addEventListener('click', async () => {
+  await Store.signOut(); userIn = false;
+  $('#book').classList.remove('open'); $('#coverHint').hidden = false;
+  $('#pw').value = '';
+  H.replace({ view: 'cover' }, ''); showView('cover');
+});
+
+/* ---------- contents ---------- */
+function thumb(m, rot){
+  const t = el('span', 'thumb'); t.style.setProperty('--r', rot + 'deg');
+  if (m.photos.length){ const i = el('img'); i.src = m.photos[0].url; i.alt = ''; i.loading = 'lazy'; t.append(i); }
+  else { t.classList.add('none'); t.innerHTML = flower; }
+  return t;
+}
+function renderContents(){
+  const list = sorted(), box = $('#chapters'); box.innerHTML = '';
+  $('#tocCount').textContent = list.length ? `${list.length} ${list.length === 1 ? 'memory' : 'memories'} so far` : '';
+  if (!list.length){
+    const e = el('div', 'empty'); e.append(el('p', null, 'Your book is still empty. Write the first page.'));
+    const b = el('button', 'btn', 'Write the first page'); b.dataset.new = ''; e.append(b); box.append(e);
+  }
+  const groups = {};
+  list.forEach(m => { const k = m.date.slice(0, 7); (groups[k] = groups[k] || []).push(m); });
+  Object.keys(groups).sort().reverse().forEach(k => {
+    const [y, mo] = k.split('-').map(Number);
+    const ch = el('section', 'chapter');
+    ch.append(el('h3', null, `${MONTHS[mo - 1]} ${y}`));
+    ch.append(el('p', 'n', `${groups[k].length} ${groups[k].length === 1 ? 'memory' : 'memories'}`));
+    groups[k].forEach((m, i) => {
+      const b = el('button', 'entry'); const d = parseDate(m.date);
+      b.append(thumb(m, i % 2 ? 3 : -3));
+      const txt = el('span'); txt.append(el('span', 't', m.title)); if (m.place) txt.append(el('span', 'p', m.place)); b.append(txt);
+      const dd = el('span', 'd'); dd.append(el('b', null, d.getDate()), el('i', null, DAYS[d.getDay()].slice(0, 3))); b.append(dd);
+      b.addEventListener('click', () => go('memory', m.id));
+      ch.append(b);
+    });
+    box.append(ch);
+  });
+  const t = todayISO().slice(5), now = new Date().getFullYear();
+  const otd = list.filter(m => m.date.slice(5) === t && Number(m.date.slice(0, 4)) < now);
+  const o = $('#otd');
+  if (otd.length){
+    const m = otd[0], years = now - Number(m.date.slice(0, 4));
+    o.innerHTML = '';
+    o.append(thumb(m, -4));
+    const txt = el('span'); txt.append(el('p', 'when', 'On this day'), el('p', 'what', `${years} ${years === 1 ? 'year' : 'years'} ago: ${m.title}`));
+    o.append(txt); o.hidden = false; o.onclick = () => go('memory', m.id);
+  } else o.hidden = true;
+}
+$('#randomBtn').addEventListener('click', () => {
+  const l = sorted(); if (!l.length) return;
+  go('memory', l[Math.floor(Math.random() * l.length)].id);
+});
+
+/* ---------- memory page ---------- */
+function renderMemory(id){
+  const list = sorted(); const idx = list.findIndex(m => m.id === id);
+  const m = list[idx]; if (!m) return false;
+  current = m;
+  const p = $('#page'); p.innerHTML = ''; p.className = 'paper page';
+  p.append(el('p', 'date', longDate(m.date)));
+  p.append(el('h2', null, m.title));
+  if (m.place){ const s = el('div', 'stamp', m.place); s.setAttribute('aria-label', 'Place: ' + m.place); p.append(s); }
+  if (m.photos.length){
+    const c = el('div', 'collage' + (m.photos.length === 1 ? ' one' : ''));
+    m.photos.forEach((ph, i) => {
+      const b = el('button', 'snap');
+      b.style.setProperty('--r', ((i % 2 ? 1 : -1) * rand(1, 3.2)).toFixed(1) + 'deg');
+      b.style.setProperty('--tr', rand(-8, 8).toFixed(1) + 'deg');
+      b.style.setProperty('--tape', i % 2 ? 'rgba(222,158,162,.62)' : 'rgba(125,138,107,.55)');
+      b.setAttribute('aria-label', `Open photo ${i + 1} of ${m.photos.length}`);
+      const img = el('img'); img.src = ph.url; img.alt = ''; img.loading = 'lazy'; img.decoding = 'async'; b.append(img);
+      b.addEventListener('click', () => openLightbox(m.photos, i));
+      c.append(b);
+    });
+    p.append(c);
+  }
+  if (m.note){
+    const n = el('div', 'note');
+    m.note.split(/\n\s*\n/).forEach(par => n.append(el('p', null, par.trim())));
+    p.append(n);
+  }
+  p.append(el('p', 'sign', 'Written by ' + (m.author || 'Carl')));
+  $('#olderBtn').disabled = idx >= list.length - 1;
+  $('#newerBtn').disabled = idx <= 0;
+  $('#olderBtn').style.visibility = idx >= list.length - 1 ? 'hidden' : '';
+  $('#newerBtn').style.visibility = idx <= 0 ? 'hidden' : '';
+  return true;
+}
+async function turn(dir){
+  const list = sorted(); const idx = list.findIndex(m => m.id === current.id);
+  const next = list[idx + dir]; if (!next) return;
+  const p = $('#page');
+  if (!reduce){ p.classList.add(dir > 0 ? 'out-l' : 'out-r'); await wait(280); }
+  go('memory', next.id);
+  if (!reduce){
+    p.classList.add(dir > 0 ? 'out-r' : 'out-l');
+    requestAnimationFrame(() => requestAnimationFrame(() => p.classList.remove('out-l', 'out-r')));
+  }
+}
+$('#olderBtn').addEventListener('click', () => turn(1));
+$('#newerBtn').addEventListener('click', () => turn(-1));
+$('#editBtn').addEventListener('click', () => current && openEditor(current));
+(() => {
+  let sx = 0, sy = 0, on = false;
+  const p = $('#page');
+  p.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse') return; on = true; sx = e.clientX; sy = e.clientY; });
+  p.addEventListener('pointerup', e => {
+    if (!on) return; on = false;
+    const dx = e.clientX - sx, dy = e.clientY - sy;
+    if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5) turn(dx < 0 ? 1 : -1);
+  });
+  p.addEventListener('pointercancel', () => on = false);
+})();
+
+/* ---------- lightbox ---------- */
+let lb = { list: [], i: 0 };
+function showLb(){ $('#lbImg').src = lb.list[lb.i].url; $('#lbCount').textContent = `${lb.i + 1} of ${lb.list.length}`;
+  $('#lbPrev').style.visibility = lb.list.length > 1 ? '' : 'hidden'; $('#lbNext').style.visibility = lb.list.length > 1 ? '' : 'hidden'; }
+function openLightbox(list, i){ lb = { list, i }; showLb(); $('#lightbox').hidden = false; H.push({ overlay: 'lb' }, ''); $('#lbClose').focus(); }
+function closeLightbox(back = true){ $('#lightbox').hidden = true; if (back) H.back(); }
+const lbStep = d => { lb.i = (lb.i + d + lb.list.length) % lb.list.length; showLb(); };
+$('#lbPrev').addEventListener('click', () => lbStep(-1));
+$('#lbNext').addEventListener('click', () => lbStep(1));
+$('#lbClose').addEventListener('click', () => closeLightbox());
+$('#lightbox').addEventListener('click', e => { if (e.target.id === 'lightbox') closeLightbox(); });
+(() => {
+  let sx = 0; const box = $('#lightbox');
+  box.addEventListener('pointerdown', e => sx = e.clientX);
+  box.addEventListener('pointerup', e => { const dx = e.clientX - sx; if (Math.abs(dx) > 60) lbStep(dx < 0 ? 1 : -1); });
+})();
+document.addEventListener('keydown', e => {
+  if (!$('#lightbox').hidden){
+    if (e.key === 'Escape') closeLightbox(); if (e.key === 'ArrowRight') lbStep(1); if (e.key === 'ArrowLeft') lbStep(-1);
+  } else if (!$('#editorWrap').hidden){ if (e.key === 'Escape') closeEditor(); }
+  else if ($('#memory').classList.contains('active')){
+    if (e.key === 'ArrowRight') turn(1); if (e.key === 'ArrowLeft') turn(-1);
+  }
+});
+
+/* ---------- editor ---------- */
+let ed = { id: null, keep: [], add: [] };
+function renderPhotos(){
+  const box = $('#fPhotos'); box.innerHTML = '';
+  const all = [...ed.keep.map(p => ({ url: p.url, kind: 'keep', ref: p })), ...ed.add.map(a => ({ url: a.url, kind: 'add', ref: a }))];
+  all.forEach((p, i) => {
+    const f = el('div', 'ph'); const img = el('img'); img.src = p.url; img.alt = ''; f.append(img);
+    const r = el('button', null, i === 0 ? 'Remove (cover)' : 'Remove'); r.type = 'button';
+    r.addEventListener('click', () => {
+      if (p.kind === 'keep') ed.keep = ed.keep.filter(x => x !== p.ref);
+      else { URL.revokeObjectURL(p.ref.url); ed.add = ed.add.filter(x => x !== p.ref); }
+      renderPhotos();
+    });
+    f.append(r); box.append(f);
+  });
+  const lab = el('label', 'add-photo'); lab.append(el('span', null, all.length ? 'Add more photos' : 'Add photos'));
+  const inp = el('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = true; lab.append(inp);
+  inp.addEventListener('change', async () => {
+    const files = [...inp.files]; if (!files.length) return;
+    $('#edMsg').textContent = 'Preparing photos…';
+    for (const f of files){
+      try { const blob = await compress(f); ed.add.push({ blob, url: URL.createObjectURL(blob) }); }
+      catch { $('#edMsg').textContent = `${f.name} couldn\u2019t be read. Try a JPG or PNG.`; }
+    }
+    if ($('#edMsg').textContent === 'Preparing photos…') $('#edMsg').textContent = '';
+    renderPhotos();
+  });
+  box.append(lab);
+}
+function openEditor(m){
+  ed = { id: m ? m.id : null, keep: m ? [...m.photos] : [], add: [] };
+  $('#edTitle').textContent = m ? 'Edit this page' : 'A new page';
+  $('#fDate').value = m ? m.date : todayISO();
+  $('#fTitle').value = m ? m.title : '';
+  $('#fPlace').value = m ? (m.place || '') : '';
+  $('#fNote').value = m ? (m.note || '') : '';
+  $('#saveBtn').textContent = m ? 'Save changes' : 'Seal this page';
+  $('#delBtn').hidden = !m;
+  $('#edMsg').textContent = '';
+  renderPhotos();
+  $('#editorWrap').hidden = false; $('#editorWrap').scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+  H.push({ overlay: 'ed' }, '');
+  setTimeout(() => $('#fTitle').focus({ preventScroll: true }), 50);
+}
+function closeEditor(back = true){
+  $('#editorWrap').hidden = true; document.body.style.overflow = '';
+  if (back) H.back();
+}
+$('#cancelBtn').addEventListener('click', () => closeEditor());
+const doSave = async e => {
+  if (e) e.preventDefault();
+  if ($('#saveBtn').disabled) return;
+  const date = $('#fDate').value, title = $('#fTitle').value.trim();
+  if (!date){ $('#edMsg').textContent = 'Pick a date for this page.'; $('#fDate').focus(); return; }
+  if (!title){ $('#edMsg').textContent = 'Add a title for this page.'; $('#fTitle').focus(); return; }
+  const btn = $('#saveBtn'); btn.disabled = true; const label = btn.textContent; btn.textContent = 'Saving…';
+  try {
+    const rec = await Store.save({ id: ed.id, date, title, place: $('#fPlace').value.trim(), note: $('#fNote').value.trim() }, ed.keep, ed.add.map(a => a.blob));
+    memories = await Store.list();
+    closeEditor(false);
+    await sealedMoment(label === 'Save changes' ? 'Saved' : 'Sealed');
+    H.back();
+    setTimeout(() => go('memory', rec.id), 30);
+  } catch (err){
+    console.error(err);
+    $('#edMsg').textContent = 'This page couldn\u2019t be saved. Check your connection and try again.';
+  } finally { btn.disabled = false; btn.textContent = label; }
+};
+$('#editor').addEventListener('submit', doSave);
+$('#saveBtn').addEventListener('click', doSave);
+$('#delBtn').addEventListener('click', async () => {
+  const b = $('#delBtn');
+  if (!b.dataset.armed){
+    b.dataset.armed = '1'; b.textContent = 'Tap again to delete';
+    setTimeout(() => { delete b.dataset.armed; b.textContent = 'Delete this page'; }, 4000);
+    return;
+  }
+  delete b.dataset.armed; b.textContent = 'Delete this page';
+  await Store.remove(ed.id);
+  memories = await Store.list();
+  closeEditor(false); H.back();
+  setTimeout(() => go('contents'), 30);
+});
+async function sealedMoment(word){
+  const s = el('div', 'sealed'); const inner = el('div'); inner.innerHTML = sealSVG('s-done'); inner.append(el('p', null, word));
+  s.append(inner); document.body.append(s);
+  await wait(reduce ? 300 : 1100);
+  s.classList.add('bye'); await wait(500); s.remove();
+}
+
+/* ---------- start ---------- */
+H.replace({ view: 'cover' });
+if (LIB_MISSING){ $('#loginMsg').textContent = 'The book couldn\u2019t load. Check your connection, then refresh the page.'; $('#loginBtn').disabled = true; }
+(async () => {
+  if (LIB_MISSING) return;
+  try {
+    const u = await Store.session();
+    if (u){
+      userIn = true; memories = await Store.list();
+      $('#coverHint').textContent = 'Tap the seal to open your book';
+    }
+  } catch (err){ console.error(err); }
+})();
+</script>
+</body>
+</html>

@@ -212,6 +212,14 @@ body.has-turn main{padding-bottom:84px}
 .slip .what{margin:2px 0 0;font-style:italic;color:var(--ink-soft);font-size:16px}
 .loading-book{font-style:italic;color:var(--on-bg-soft);margin:60px 0}
 
+/* ---------- favorites ---------- */
+.ribbon{position:absolute;top:-4px;left:14px;width:24px;height:42px;border:0;padding:0;background:none;cursor:pointer;filter:drop-shadow(0 3px 3px rgba(60,5,20,.35));transition:transform .2s}
+.ribbon span{display:block;width:100%;height:100%;background:rgba(140,28,46,.2);clip-path:polygon(0 0,100% 0,100% 100%,50% 76%,0 100%);transition:background .25s}
+.ribbon:hover{transform:translateY(3px)}
+.ribbon[aria-pressed="true"] span{background:var(--seal)}
+.page .date{padding-left:28px}
+.fav-note{font-style:italic;font-size:14px;color:var(--seal);margin:4px 0 0;min-height:1.2em}
+.entry.is-fav .t::after{content:"";display:inline-block;width:8px;height:12px;margin-left:7px;vertical-align:-1px;background:var(--seal);clip-path:polygon(0 0,100% 0,100% 100%,50% 75%,0 100%)}
 /* ---------- v2: contents tools ---------- */
 .tools{display:flex;flex-wrap:wrap;gap:12px 14px;align-items:center;justify-content:space-between;margin:16px 0 4px}
 .tabs{display:inline-flex;border:1px solid var(--rule);border-radius:999px;padding:3px;background:rgba(255,255,255,.35)}
@@ -316,6 +324,7 @@ details.month .rows{padding-bottom:8px}
           <button class="tab" role="tab" data-view="list">List</button>
           <button class="tab" role="tab" data-view="photos">Photos</button>
           <button class="tab" role="tab" data-view="calendar">Calendar</button>
+          <button class="tab" role="tab" data-view="favorites">Favorites</button>
         </div>
         <input class="search" id="q" type="search" placeholder="Search titles, notes, places" aria-label="Search pages" autocomplete="off">
       </div>
@@ -325,6 +334,7 @@ details.month .rows{padding-bottom:8px}
       <div id="listView"></div>
       <div id="photoView" hidden></div>
       <div id="calView" hidden></div>
+      <div id="favView" hidden></div>
     </div>
     <p style="margin-top:22px"><button class="link" id="signOut">Close the book</button></p>
   </section>
@@ -471,7 +481,7 @@ function sampleData(){
 }
 
 const DemoStore = {
-  data: sampleData(), user: null,
+  data: sampleData().map((m, i) => ({ ...m, favorite: i === 0 })), user: null,
   async session(){ return this.user; },
   async signIn(){ this.user = { name: 'Carl' }; return this.user; },
   async signOut(){ this.user = null; },
@@ -489,7 +499,8 @@ const DemoStore = {
     const rec = { ...m, id: 'm' + Date.now(), author: 'Carl', created: new Date().toISOString(), photos };
     this.data.push(rec); return rec;
   },
-  async remove(id){ this.data = this.data.filter(m => m.id !== id); }
+  async remove(id){ this.data = this.data.filter(m => m.id !== id); },
+  async setFavorite(id, val){ const m = this.data.find(x => x.id === id); if (m) m.favorite = val; }
 };
 
 /* ---------- data: Supabase store ---------- */
@@ -516,14 +527,14 @@ const SupaStore = {
   async signOut(){ await sb.auth.signOut(); },
   async list(){
     const [mem, mb] = await Promise.all([
-      sb.from('memories').select('id,date,title,place,note,author_id,created_at,memory_photos(id,path,position)').order('date', { ascending: false }),
+      sb.from('memories').select('id,date,title,place,note,favorite,author_id,created_at,memory_photos(id,path,position)').order('date', { ascending: false }),
       sb.from('members').select('user_id,display_name')
     ]);
     if (mem.error) throw mem.error;
     (mb.data || []).forEach(m => names[m.user_id] = m.display_name);
     const rows = mem.data.map(m => ({
       id: m.id, date: m.date, title: m.title, place: m.place || '', note: m.note || '',
-      author: names[m.author_id] || '', created: m.created_at,
+      author: names[m.author_id] || '', created: m.created_at, favorite: !!m.favorite,
       photos: (m.memory_photos || []).sort((a, b) => a.position - b.position).map(p => ({ id: p.id, path: p.path, url: null }))
     }));
     await signPaths(rows.filter(m => m.photos.length).map(m => m.photos[0].path));   // covers only
@@ -568,6 +579,10 @@ const SupaStore = {
     }
     return { id };
   },
+  async setFavorite(id, val){
+    const { error } = await sb.from('memories').update({ favorite: val }).eq('id', id);
+    if (error) throw error;
+  },
   async remove(id){
     const { data } = await sb.from('memory_photos').select('path').eq('memory_id', id);
     if (data && data.length) await sb.storage.from(BUCKET).remove(data.map(p => p.path));
@@ -580,7 +595,7 @@ const Store = DEMO ? DemoStore : SupaStore;
 /* ---------- state ---------- */
 let memories = [], current = null, userIn = false;
 const ui = {
-  view: ['list', 'photos', 'calendar'].includes(LS.get('view')) ? LS.get('view') : 'list',
+  view: ['list', 'photos', 'calendar', 'favorites'].includes(LS.get('view')) ? LS.get('view') : 'list',
   q: '', year: null, open: null, contentsY: 0, slipShown: false, calMonth: null, calDay: null
 };
 const sorted = () => [...memories].sort((a, b) => b.date.localeCompare(a.date) || String(b.created || b.id).localeCompare(String(a.created || a.id)));
@@ -687,7 +702,7 @@ function thumb(m, rot){
   return t;
 }
 function entryRow(m, i){
-  const b = el('button', 'entry'); const d = parseDate(m.date);
+  const b = el('button', 'entry' + (m.favorite ? ' is-fav' : '')); const d = parseDate(m.date);
   b.append(thumb(m, i % 2 ? 3 : -3));
   const txt = el('span'); txt.append(el('span', 't', m.title)); if (m.place) txt.append(el('span', 'p', m.place)); b.append(txt);
   const dd = el('span', 'd'); dd.append(el('b', null, d.getDate()), el('i', null, DAYS[d.getDay()].slice(0, 3))); b.append(dd);
@@ -707,6 +722,7 @@ function renderContents(){
   $('#listView').hidden = ui.view !== 'list';
   $('#photoView').hidden = ui.view !== 'photos';
   $('#calView').hidden = ui.view !== 'calendar';
+  $('#favView').hidden = ui.view !== 'favorites';
   ['#jumpYears', '#jumpMonths', '#results'].forEach(s => $(s).hidden = true);
 
   // continue where you left off (once per visit)
@@ -731,13 +747,14 @@ function renderContents(){
 
   if (!list.length){
     const box = $('#listView'); box.innerHTML = ''; box.hidden = false;
-    $('#photoView').hidden = true; $('#calView').hidden = true;
+    $('#photoView').hidden = true; $('#calView').hidden = true; $('#favView').hidden = true;
     const e = el('div', 'empty'); e.append(el('p', null, 'Your book is still empty. Write the first page.'));
     const b = el('button', 'btn', 'Write the first page'); b.dataset.new = ''; e.append(b); box.append(e);
     return;
   }
   if (ui.view === 'list') renderList(list);
   else if (ui.view === 'photos') renderPhotos(list);
+  else if (ui.view === 'favorites') renderFavorites(list);
   else renderCalendar(list);
 }
 function showResults(n, q){
@@ -820,6 +837,17 @@ function renderPhotos(list){
   });
 }
 
+/* favorites view */
+function renderFavorites(list){
+  const q = ui.q.trim().toLowerCase(), items = list.filter(m => m.favorite && matches(m, q));
+  showResults(items.length, ui.q.trim());
+  const box = $('#favView'); box.innerHTML = '';
+  if (!list.some(m => m.favorite)){
+    const e = el('div', 'empty'); e.append(el('p', null, 'No favorites yet. Open a page and tap the red ribbon at the top to keep it here.')); box.append(e); return;
+  }
+  items.forEach((m, i) => box.append(entryRow(m, i)));
+}
+
 /* calendar view */
 function renderCalendar(list){
   const box = $('#calView'); box.innerHTML = '';
@@ -871,10 +899,24 @@ function renderMemory(id){
   const m = list[idx]; if (!m) return false;
   current = m;
   const p = $('#page'); p.innerHTML = ''; p.className = 'paper page';
+  if (userIn){
+    const rb = el('button', 'ribbon'); rb.append(el('span'));
+    const setRb = () => { rb.setAttribute('aria-pressed', String(!!m.favorite)); rb.setAttribute('aria-label', m.favorite ? 'Remove from favorites' : 'Add to favorites'); rb.title = rb.getAttribute('aria-label'); };
+    setRb();
+    rb.addEventListener('click', async () => {
+      const val = !m.favorite; m.favorite = val; setRb();
+      const live = memories.find(x => x.id === m.id); if (live) live.favorite = val;
+      $('#favNote').textContent = val ? 'Added to favorites' : 'Removed from favorites';
+      try { await Store.setFavorite(m.id, val); }
+      catch (err){ console.error(err); m.favorite = !val; if (live) live.favorite = !val; setRb(); $('#favNote').textContent = 'This couldn\u2019t be saved. Try again.'; }
+    });
+    p.append(rb);
+  }
   const dl = el('p', 'date', longDate(m.date));
   if (userIn){ const e = el('button', 'link edit-inline', 'Edit'); e.addEventListener('click', () => openEditor(m)); dl.append(e); }
   p.append(dl);
   p.append(el('h2', null, m.title));
+  const fn = el('p', 'fav-note'); fn.id = 'favNote'; fn.setAttribute('aria-live', 'polite'); p.append(fn);
   if (m.place){ const s = el('div', 'stamp', m.place); s.setAttribute('aria-label', 'Place: ' + m.place); p.append(s); }
   if (m.photos.length){
     const c = el('div', 'collage'); c.append(el('p', 'loading', 'Loading photos\u2026')); p.append(c);

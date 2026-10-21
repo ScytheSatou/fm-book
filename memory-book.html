@@ -212,6 +212,14 @@ body.has-turn main{padding-bottom:84px}
 .slip .what{margin:2px 0 0;font-style:italic;color:var(--ink-soft);font-size:16px}
 .loading-book{font-style:italic;color:var(--on-bg-soft);margin:60px 0}
 
+/* ---------- dedication ---------- */
+#dedication{justify-content:center;padding:40px 18px 52px;gap:22px}
+.dedi{width:min(92vw,560px);padding:clamp(38px,9vw,64px) clamp(26px,8vw,60px);text-align:left}
+.dedi .orn{width:120px;display:block;margin:0 auto 18px;color:var(--gold)}
+.dedi h2{font-family:var(--script);font-weight:400;font-size:clamp(46px,12vw,62px);line-height:1;margin:0 0 20px}
+.dedi p{font-size:19px;line-height:1.8;margin:0 0 1em}
+.dedi .sig{font-family:var(--script);font-size:clamp(34px,9vw,44px);text-align:right;margin:18px 0 0;color:var(--ink-soft)}
+.toc-foot{margin-top:22px;display:flex;gap:22px;justify-content:center;flex-wrap:wrap}
 /* ---------- favorites ---------- */
 .ribbon{position:absolute;top:-4px;left:14px;width:24px;height:42px;border:0;padding:0;background:none;cursor:pointer;filter:drop-shadow(0 3px 3px rgba(60,5,20,.35));transition:transform .2s}
 .ribbon span{display:block;width:100%;height:100%;background:rgba(140,28,46,.2);clip-path:polygon(0 0,100% 0,100% 100%,50% 76%,0 100%);transition:background .25s}
@@ -304,6 +312,17 @@ details.month .rows{padding-bottom:8px}
     <p class="cover-hint" id="coverHint">Tap the seal to open</p>
   </section>
 
+  <!-- Dedication -->
+  <section class="view" id="dedication" aria-labelledby="dediTitle">
+    <article class="paper dedi">
+      <svg class="orn" viewBox="0 0 120 20" aria-hidden="true"><path d="M2 10h44M74 10h44M60 3c-5 0-8 3-8 7s3 7 8 7 8-3 8-7-3-7-8-7z" stroke="currentColor" stroke-width="1.2" fill="none"/><circle cx="60" cy="10" r="2.2" fill="currentColor"/></svg>
+      <h2 id="dediTitle"></h2>
+      <div id="dediBody"></div>
+      <p class="sig" id="dediSig"></p>
+    </article>
+    <button class="btn" id="turnBtn">Turn the page</button>
+  </section>
+
   <!-- Contents -->
   <section class="view" id="contents" aria-labelledby="tocTitle">
     <header class="bar">
@@ -336,7 +355,7 @@ details.month .rows{padding-bottom:8px}
       <div id="calView" hidden></div>
       <div id="favView" hidden></div>
     </div>
-    <p style="margin-top:22px"><button class="link" id="signOut">Close the book</button></p>
+    <p class="toc-foot"><button class="link" id="readDedi">Read our dedication</button><button class="link" id="signOut">Close the book</button></p>
   </section>
 
   <!-- Memory -->
@@ -402,7 +421,14 @@ details.month .rows{padding-bottom:8px}
 const BOOK = {
   title: "Our Little Book of Memories",
   owners: "Carl & Madam",
-  coverLine: "Pages we never want to forget"
+  coverLine: "Pages we never want to forget",
+  dedicationTitle: "To us,",
+  dedication: [
+    "This little book is where we keep our memories, from your side and mine.",
+    "Whenever something special happens, a date, a random gala, or even just a call we don\u2019t want to forget, it gets a page here.",
+    "Some pages will be big days. Some will be small moments. All of them are ours."
+  ],
+  dedicationSign: "Carl & Madam"
 };
 const SUPABASE = { url: "https://qhamzffiqoghvbmsbxut.supabase.co", anonKey: "sb_publishable_aH897lL4qKf9M0mKDptK_Q_11J9lxXI" };
 /* ============================================================ */
@@ -605,14 +631,15 @@ async function loadMemories(){ memories = await Store.list(); }
 /* ---------- navigation ---------- */
 function showView(id){
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === id));
-  document.body.classList.toggle('has-bar', id !== 'cover');
+  document.body.classList.toggle('has-bar', id !== 'cover' && id !== 'dedication');
   document.body.classList.toggle('has-turn', id === 'memory');
   $('#turnbar').hidden = id !== 'memory';
 }
 function go(view, id, push = true, opts = {}){
   const leaving = document.querySelector('.view.active');
   if (leaving && leaving.id === 'contents') ui.contentsY = window.scrollY;
-  if (view === 'memory' && renderMemory(id)){
+  if (view === 'dedication'){ showView('dedication'); window.scrollTo(0, 0); }
+  else if (view === 'memory' && renderMemory(id)){
     showView('memory'); window.scrollTo(0, 0); LS.set('last', id);
   } else if (view === 'contents' || view === 'memory'){
     renderContents(); showView('contents');
@@ -643,10 +670,20 @@ $('#owners').textContent = BOOK.owners;
 $('#openSeal').innerHTML = sealSVG('s-open');
 if (DEMO){ $('#demoNote').hidden = false; $('#demoBanner').hidden = false; }
 
+function enterBook(){
+  H.replace({ view: 'cover' });
+  if (!LS.get('dedication')) go('dedication');
+  else go('contents', null, true, { top: true });
+}
+$('#dediTitle').textContent = BOOK.dedicationTitle;
+BOOK.dedication.forEach(t => $('#dediBody').append(el('p', null, t)));
+$('#dediSig').textContent = BOOK.dedicationSign;
+$('#turnBtn').addEventListener('click', () => { LS.set('dedication', '1'); go('contents', null, true, { top: true }); });
+$('#readDedi').addEventListener('click', () => go('dedication'));
 $('#openSeal').addEventListener('click', () => {
   $('#book').classList.add('open');
   $('#coverHint').hidden = true;
-  if (userIn){ setTimeout(() => { H.replace({ view: 'cover' }); go('contents', null, true, { top: true }); }, reduce ? 50 : 1200); return; }
+  if (userIn){ setTimeout(enterBook, reduce ? 50 : 1200); return; }
   setTimeout(() => (DEMO ? $('#loginBtn') : $('#email')).focus({ preventScroll: true }), reduce ? 50 : 1200);
 });
 const doLogin = async e => {
@@ -658,8 +695,7 @@ const doLogin = async e => {
     btn.textContent = 'Opening\u2026';
     userIn = true;
     await loadMemories();
-    H.replace({ view: 'cover' });
-    go('contents', null, true, { top: true });
+    enterBook();
   } catch (err){
     console.error(err);
     const msg = String((err && err.message) || '');
@@ -715,7 +751,7 @@ const matches = (m, q) => !q || `${m.title} ${m.place || ''} ${m.note || ''}`.to
 
 function renderContents(){
   const list = sorted();
-  $('#tocCount').textContent = list.length ? `${plural(list.length, 'memory', 'memories')} so far` : '';
+  $('#tocCount').textContent = list.length ? `Our story so far, one page at a time. ${plural(list.length, 'memory', 'memories')} and counting.` : '';
   document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.view === ui.view)));
   $('#q').hidden = ui.view === 'calendar';
   $('#tools').hidden = !list.length;

@@ -195,6 +195,72 @@ main{flex:1;display:flex;flex-direction:column}
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.15s!important;transition-delay:0s!important}
 }
+
+/* ---------- v2: navigation ---------- */
+body.has-turn main{padding-bottom:84px}
+.turnbar{position:fixed;left:0;right:0;bottom:0;z-index:25;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:10px max(16px,calc((100% - 720px)/2)) calc(10px + env(safe-area-inset-bottom,0px));
+  background:var(--bar);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 -10px 24px -18px rgba(0,0,0,.6)}
+.turnbar .pos{font-style:italic;font-size:15px;color:var(--on-bg-soft);text-align:center}
+.turnbar .ghost{padding:8px 16px;min-width:92px}
+.ghost:disabled{opacity:.28;cursor:default}
+.date .edit-inline{margin-left:10px;font-size:15px;color:var(--seal);padding:0}
+.collage .loading{font-style:italic;color:var(--ink-soft);text-align:center;font-size:15px;padding:40px 0;margin:0}
+.slip{width:min(94vw,680px);margin:22px 0 0;padding:14px 20px;text-align:left;cursor:pointer;border:0;transform:rotate(.5deg);display:flex;gap:14px;align-items:center}
+.slip::before{content:"";position:absolute;top:-10px;right:46px;width:64px;height:20px;background:rgba(222,158,162,.62);transform:rotate(5deg)}
+.slip .when{font-family:var(--script);font-size:26px;line-height:1;margin:0}
+.slip .what{margin:2px 0 0;font-style:italic;color:var(--ink-soft);font-size:16px}
+.loading-book{font-style:italic;color:var(--on-bg-soft);margin:60px 0}
+
+/* ---------- v2: contents tools ---------- */
+.tools{display:flex;flex-wrap:wrap;gap:12px 14px;align-items:center;justify-content:space-between;margin:16px 0 4px}
+.tabs{display:inline-flex;border:1px solid var(--rule);border-radius:999px;padding:3px;background:rgba(255,255,255,.35)}
+.tab{border:0;background:none;padding:6px 14px;border-radius:999px;font-style:italic;font-size:15px;cursor:pointer;color:var(--ink-soft)}
+.tab[aria-selected="true"]{background:var(--seal);color:#F7EAE2}
+.search{flex:1 1 180px;min-width:0;background:transparent;border:0;border-bottom:1.5px solid var(--ink-soft);padding:6px 2px;font-size:16px;color:var(--ink)}
+.search:focus{outline:none;border-bottom-color:var(--seal)}
+.jump{display:flex;gap:8px;overflow-x:auto;padding:8px 0 4px;margin:0;scrollbar-width:none}
+.jump::-webkit-scrollbar{display:none}
+.jump + .jump{padding-top:0}
+.chip{flex:none;border:1px solid var(--rule);background:transparent;border-radius:999px;padding:5px 12px;font-size:14px;font-style:italic;color:var(--ink);cursor:pointer}
+.chip.on{border-color:var(--seal);color:var(--seal);background:rgba(140,28,46,.06)}
+.results{font-style:italic;color:var(--ink-soft);font-size:15px;margin:12px 0 0}
+.year{font-family:var(--script);font-weight:400;font-size:clamp(40px,10vw,52px);line-height:1;margin:24px 0 2px;color:var(--ink)}
+details.month{border-top:1px solid var(--rule)}
+details.month:last-of-type{border-bottom:1px solid var(--rule)}
+details.month summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 2px}
+details.month summary::-webkit-details-marker{display:none}
+.mname{font-family:var(--script);font-size:clamp(28px,7.5vw,34px);color:var(--seal);line-height:1.1}
+.mcount{font-style:italic;font-size:14px;color:var(--ink-soft);display:flex;align-items:center;gap:8px;white-space:nowrap}
+.chev{display:inline-block;transition:transform .25s;font-style:normal}
+details[open] .chev{transform:rotate(90deg)}
+details.month .rows{padding-bottom:8px}
+
+/* ---------- v2: photos view ---------- */
+.gmonth{font-family:var(--script);font-weight:400;font-size:clamp(26px,7vw,32px);color:var(--seal);margin:22px 0 8px;line-height:1.1}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (min-width:560px){.grid{grid-template-columns:repeat(4,1fr)}}
+.gthumb{background:#FBF6F1;padding:5px 5px 8px;border:0;box-shadow:0 8px 14px -8px rgba(30,5,12,.6);cursor:pointer;text-align:left;color:var(--ink);min-width:0}
+.gthumb img,.gthumb .none{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:#EFDDD2}
+.gthumb .none{display:grid;place-items:center;color:var(--sage)}
+.gthumb .none svg{width:34%}
+.gt{display:block;font-size:13px;line-height:1.25;margin-top:6px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.gd{display:block;font-size:12px;font-style:italic;color:var(--ink-soft);margin-top:2px}
+
+/* ---------- v2: calendar view ---------- */
+.cal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:18px}
+.cal-title{font-family:var(--script);font-size:clamp(30px,8vw,38px);color:var(--seal);line-height:1;margin:0;text-align:center}
+.cal-head .ghost{padding:7px 12px;font-size:14px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:12px}
+.wd{text-align:center;font-size:12px;font-style:italic;color:var(--ink-soft);padding:4px 0}
+.day{aspect-ratio:1;border:0;background:none;border-radius:6px;font-size:16px;color:var(--ink-soft);display:grid;place-items:center;position:relative;padding:0;opacity:.7}
+.day.has{color:var(--ink);background:rgba(140,28,46,.09);cursor:pointer;opacity:1}
+.day.has::after{content:"\2665";position:absolute;bottom:3px;font-size:10px;line-height:1;color:var(--seal)}
+.day.today{box-shadow:inset 0 0 0 1px var(--gold)}
+.day.sel{background:var(--seal);color:#F7EAE2}
+.day.sel::after{color:#F7EAE2}
+.cal-list{margin-top:14px}
+.cal-list .results{margin:0 0 4px}
 </style>
 </head>
 <body>
@@ -240,11 +306,25 @@ main{flex:1;display:flex;flex-direction:column}
       </div>
     </header>
     <p class="demo-banner" id="demoBanner" hidden>Preview mode. These are sample pages, and anything you add disappears when you refresh.</p>
+    <button class="paper slip" id="contSlip" hidden></button>
     <button class="paper otd" id="otd" hidden></button>
     <div class="paper toc">
       <h2 id="tocTitle">Contents</h2>
       <p class="count" id="tocCount"></p>
-      <div id="chapters"></div>
+      <div class="tools" id="tools">
+        <div class="tabs" role="tablist" aria-label="How to browse">
+          <button class="tab" role="tab" data-view="list">List</button>
+          <button class="tab" role="tab" data-view="photos">Photos</button>
+          <button class="tab" role="tab" data-view="calendar">Calendar</button>
+        </div>
+        <input class="search" id="q" type="search" placeholder="Search titles, notes, places" aria-label="Search pages" autocomplete="off">
+      </div>
+      <div id="jumpYears" class="jump" hidden></div>
+      <div id="jumpMonths" class="jump" hidden></div>
+      <p class="results" id="results" hidden aria-live="polite"></p>
+      <div id="listView"></div>
+      <div id="photoView" hidden></div>
+      <div id="calView" hidden></div>
     </div>
     <p style="margin-top:22px"><button class="link" id="signOut">Close the book</button></p>
   </section>
@@ -254,18 +334,19 @@ main{flex:1;display:flex;flex-direction:column}
     <header class="bar">
       <button class="home" data-go="contents">Our little book</button>
       <div class="acts">
-        <button class="ghost" id="editBtn">Edit page</button>
+        <button class="ghost" data-go="contents">Contents</button>
         <button class="btn" data-new>New page</button>
       </div>
     </header>
     <article class="paper page" id="page"></article>
-    <nav class="pager" aria-label="Turn pages">
-      <button class="ghost" id="olderBtn">Older page</button>
-      <button class="link" data-go="contents">Contents</button>
-      <button class="ghost" id="newerBtn">Newer page</button>
-    </nav>
   </section>
 </main>
+
+<nav class="turnbar" id="turnbar" hidden aria-label="Turn pages">
+  <button class="ghost" id="olderBtn">Older</button>
+  <span class="pos" id="pagePos"></span>
+  <button class="ghost" id="newerBtn">Newer</button>
+</nav>
 
 <!-- Lightbox -->
 <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Photo">
@@ -313,8 +394,6 @@ const BOOK = {
   owners: "Carl & Madam",
   coverLine: "Pages we never want to forget"
 };
-// Phase 2: paste your Supabase project URL and public (anon) key here.
-// While these are empty, the book runs in preview mode with sample pages.
 const SUPABASE = { url: "https://qhamzffiqoghvbmsbxut.supabase.co", anonKey: "sb_publishable_aH897lL4qKf9M0mKDptK_Q_11J9lxXI" };
 /* ============================================================ */
 
@@ -326,6 +405,10 @@ const H = {
   replace(st){ try { history.replaceState(st, ''); } catch {} },
   back(){ if (this.depth > 0){ this.depth--; try { history.back(); } catch {} } }
 };
+const LS = {
+  get(k){ try { return localStorage.getItem('mb:' + k); } catch { return null; } },
+  set(k, v){ try { localStorage.setItem('mb:' + k, v); } catch {} }
+};
 const $ = s => document.querySelector(s);
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const wait = ms => new Promise(r => setTimeout(r, ms));
@@ -334,8 +417,10 @@ const MONTHS = ['January','February','March','April','May','June','July','August
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const parseDate = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
 const longDate = s => { const d = parseDate(s); return `${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`; };
-const todayISO = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const todayISO = () => iso(new Date());
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
 /* ---------- wax seal ---------- */
 function sealSVG(id){
@@ -368,7 +453,6 @@ function art(kind){
   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500">${svgs[kind]}</svg>`);
 }
 
-/* ---------- data: preview store (Phase 3 adds the Supabase store) ---------- */
 function sampleData(){
   const t = new Date(), lastYear = `${t.getFullYear() - 1}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
   const P = k => ({ id: 'p' + Math.random().toString(36).slice(2), url: art(k) });
@@ -385,24 +469,43 @@ function sampleData(){
       note: "A sample memory from exactly one year ago, so you can see the \"On this day\" note at the top of the contents." }
   ];
 }
+
 const DemoStore = {
   data: sampleData(), user: null,
   async session(){ return this.user; },
   async signIn(){ this.user = { name: 'Carl' }; return this.user; },
   async signOut(){ this.user = null; },
-  async list(){ return this.data.map(m => ({ ...m, photos: [...m.photos] })); },
-  async save(m, keepPhotos, newBlobs){
-    const photos = [...keepPhotos, ...newBlobs.map(b => ({ id: 'p' + Math.random().toString(36).slice(2), url: URL.createObjectURL(b) }))];
+  async list(){ return this.data.map(m => ({ ...m, photos: m.photos.map(p => ({ ...p })) })); },
+  async ensureUrls(){},
+  async save(m, keep, blobs, onProgress){
+    const added = [];
+    for (let j = 0; j < blobs.length; j++){
+      if (onProgress) onProgress(j + 1, blobs.length);
+      await wait(120);
+      added.push({ id: 'p' + Math.random().toString(36).slice(2), url: URL.createObjectURL(blobs[j]) });
+    }
+    const photos = [...keep.map(p => ({ id: p.id, url: p.url })), ...added];
     if (m.id){ const i = this.data.findIndex(x => x.id === m.id); this.data[i] = { ...this.data[i], ...m, photos }; return this.data[i]; }
-    const rec = { ...m, id: 'm' + Date.now(), author: this.user ? this.user.name : 'Carl', photos };
+    const rec = { ...m, id: 'm' + Date.now(), author: 'Carl', created: new Date().toISOString(), photos };
     this.data.push(rec); return rec;
   },
   async remove(id){ this.data = this.data.filter(m => m.id !== id); }
 };
+
 /* ---------- data: Supabase store ---------- */
 const sb = (DEMO || LIB_MISSING) ? null : window.supabase.createClient(SUPABASE.url, SUPABASE.anonKey, { auth: { persistSession: true, autoRefreshToken: true } });
 const names = {};
 const BUCKET = 'memories';
+const urlCache = {};
+const urlFor = path => (urlCache[path] && urlCache[path].exp > Date.now()) ? urlCache[path].url : null;
+async function signPaths(paths){
+  const need = [...new Set(paths)].filter(p => { const c = urlCache[p]; return !c || c.exp < Date.now() + 10 * 60 * 1000; });
+  for (let i = 0; i < need.length; i += 100){
+    const { data, error } = await sb.storage.from(BUCKET).createSignedUrls(need.slice(i, i + 100), 60 * 60 * 12);
+    if (error) throw error;
+    (data || []).forEach(d => { if (d.signedUrl) urlCache[d.path] = { url: d.signedUrl, exp: Date.now() + 11.5 * 60 * 60 * 1000 }; });
+  }
+}
 const SupaStore = {
   async session(){ const { data } = await sb.auth.getSession(); return data.session ? data.session.user : null; },
   async signIn(email, password){
@@ -418,20 +521,20 @@ const SupaStore = {
     ]);
     if (mem.error) throw mem.error;
     (mb.data || []).forEach(m => names[m.user_id] = m.display_name);
-    const paths = mem.data.flatMap(m => (m.memory_photos || []).map(p => p.path));
-    const urls = {};
-    for (let i = 0; i < paths.length; i += 100){
-      const { data, error } = await sb.storage.from(BUCKET).createSignedUrls(paths.slice(i, i + 100), 60 * 60 * 12);
-      if (error) throw error;
-      (data || []).forEach(d => { if (d.signedUrl) urls[d.path] = d.signedUrl; });
-    }
-    return mem.data.map(m => ({
+    const rows = mem.data.map(m => ({
       id: m.id, date: m.date, title: m.title, place: m.place || '', note: m.note || '',
       author: names[m.author_id] || '', created: m.created_at,
-      photos: (m.memory_photos || []).sort((a, b) => a.position - b.position).filter(p => urls[p.path]).map(p => ({ id: p.id, path: p.path, url: urls[p.path] }))
+      photos: (m.memory_photos || []).sort((a, b) => a.position - b.position).map(p => ({ id: p.id, path: p.path, url: null }))
     }));
+    await signPaths(rows.filter(m => m.photos.length).map(m => m.photos[0].path));   // covers only
+    rows.forEach(m => m.photos.forEach(p => p.url = urlFor(p.path)));
+    return rows;
   },
-  async save(m, keep, blobs){
+  async ensureUrls(m){
+    await signPaths(m.photos.map(p => p.path));
+    m.photos.forEach(p => p.url = urlFor(p.path));
+  },
+  async save(m, keep, blobs, onProgress){
     let id = m.id;
     const row = { date: m.date, title: m.title, place: m.place || null, note: m.note || null };
     if (id){
@@ -456,6 +559,7 @@ const SupaStore = {
       if (error) throw error;
     }
     for (let j = 0; j < blobs.length; j++){
+      if (onProgress) onProgress(j + 1, blobs.length);
       const path = `${id}/${Date.now()}-${j}-${Math.random().toString(36).slice(2, 8)}.jpg`;
       const up = await sb.storage.from(BUCKET).upload(path, blobs[j], { contentType: 'image/jpeg', upsert: false });
       if (up.error) throw up.error;
@@ -473,6 +577,92 @@ const SupaStore = {
 };
 const Store = DEMO ? DemoStore : SupaStore;
 
+/* ---------- state ---------- */
+let memories = [], current = null, userIn = false;
+const ui = {
+  view: ['list', 'photos', 'calendar'].includes(LS.get('view')) ? LS.get('view') : 'list',
+  q: '', year: null, open: null, contentsY: 0, slipShown: false, calMonth: null, calDay: null
+};
+const sorted = () => [...memories].sort((a, b) => b.date.localeCompare(a.date) || String(b.created || b.id).localeCompare(String(a.created || a.id)));
+const coverOf = m => (m.photos[0] && m.photos[0].url) || null;
+async function loadMemories(){ memories = await Store.list(); }
+
+/* ---------- navigation ---------- */
+function showView(id){
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === id));
+  document.body.classList.toggle('has-bar', id !== 'cover');
+  document.body.classList.toggle('has-turn', id === 'memory');
+  $('#turnbar').hidden = id !== 'memory';
+}
+function go(view, id, push = true, opts = {}){
+  const leaving = document.querySelector('.view.active');
+  if (leaving && leaving.id === 'contents') ui.contentsY = window.scrollY;
+  if (view === 'memory' && renderMemory(id)){
+    showView('memory'); window.scrollTo(0, 0); LS.set('last', id);
+  } else if (view === 'contents' || view === 'memory'){
+    renderContents(); showView('contents');
+    const y = opts.top ? 0 : ui.contentsY;
+    requestAnimationFrame(() => window.scrollTo(0, y));
+    view = 'contents';
+  } else { showView('cover'); window.scrollTo(0, 0); }
+  if (push) H.push({ view, id });
+}
+addEventListener('popstate', e => {
+  if (H.depth > 0) H.depth--;
+  if (!$('#lightbox').hidden){ closeLightbox(false); return; }
+  if (!$('#editorWrap').hidden){ closeEditor(false); return; }
+  const s = e.state || { view: 'cover' };
+  if (s.view !== 'cover' && !userIn){ H.replace({ view: 'cover' }); showView('cover'); return; }
+  go(s.view, s.id, false);
+});
+document.addEventListener('click', e => {
+  const g = e.target.closest('[data-go]'); if (g){ go(g.dataset.go); return; }
+  if (e.target.closest('[data-new]')) openEditor(null);
+});
+
+/* ---------- cover & login ---------- */
+document.title = BOOK.title;
+$('#bookTitle').textContent = BOOK.title;
+$('#coverSub').textContent = BOOK.coverLine;
+$('#owners').textContent = BOOK.owners;
+$('#openSeal').innerHTML = sealSVG('s-open');
+if (DEMO){ $('#demoNote').hidden = false; $('#demoBanner').hidden = false; }
+
+$('#openSeal').addEventListener('click', () => {
+  $('#book').classList.add('open');
+  $('#coverHint').hidden = true;
+  if (userIn){ setTimeout(() => { H.replace({ view: 'cover' }); go('contents', null, true, { top: true }); }, reduce ? 50 : 1200); return; }
+  setTimeout(() => (DEMO ? $('#loginBtn') : $('#email')).focus({ preventScroll: true }), reduce ? 50 : 1200);
+});
+const doLogin = async e => {
+  if (e) e.preventDefault();
+  const btn = $('#loginBtn'); if (btn.disabled) return;
+  btn.disabled = true; $('#loginMsg').textContent = '';
+  try {
+    await Store.signIn($('#email').value.trim(), $('#pw').value);
+    btn.textContent = 'Opening\u2026';
+    userIn = true;
+    await loadMemories();
+    H.replace({ view: 'cover' });
+    go('contents', null, true, { top: true });
+  } catch (err){
+    console.error(err);
+    const msg = String((err && err.message) || '');
+    $('#loginMsg').textContent = /invalid login|credentials/i.test(msg)
+      ? 'That email and password don\u2019t match. Try again.'
+      : 'The book couldn\u2019t be reached. Check your connection, then try again.';
+  } finally { btn.disabled = false; btn.textContent = 'Open the book'; }
+};
+$('#loginForm').addEventListener('submit', doLogin);
+$('#loginBtn').addEventListener('click', doLogin);
+['#email', '#pw'].forEach(q => $(q).addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(e); }));
+$('#signOut').addEventListener('click', async () => {
+  await Store.signOut(); userIn = false; memories = [];
+  $('#book').classList.remove('open'); $('#coverHint').hidden = false; $('#coverHint').textContent = 'Tap the seal to open';
+  $('#pw').value = '';
+  H.replace({ view: 'cover' }); showView('cover'); window.scrollTo(0, 0);
+});
+
 /* ---------- photo compression ---------- */
 async function compress(file, max = 1600, q = .82){
   let src, w, h;
@@ -487,117 +677,189 @@ async function compress(file, max = 1600, q = .82){
   return await new Promise(r => c.toBlob(r, 'image/jpeg', q));
 }
 
-/* ---------- state & navigation ---------- */
-let memories = [], current = null;
-const sorted = () => [...memories].sort((a, b) => b.date.localeCompare(a.date) || String(b.created || b.id).localeCompare(String(a.created || a.id)));
-function showView(id){
-  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === id));
-  document.body.classList.toggle('has-bar', id !== 'cover');
-  window.scrollTo(0, 0);
-}
-function go(view, id, push = true){
-  if (view === 'contents'){ renderContents(); showView('contents'); }
-  else if (view === 'memory'){ if (renderMemory(id)) showView('memory'); else { renderContents(); showView('contents'); } }
-  else showView('cover');
-  if (push) H.push({ view, id }, '');
-}
-addEventListener('popstate', e => {
-  if (H.depth > 0) H.depth--;
-  if (!$('#lightbox').hidden){ closeLightbox(false); return; }
-  if (!$('#editorWrap').hidden){ closeEditor(false); return; }
-  const s = e.state || { view: 'cover' };
-  if (s.view !== 'cover' && !userIn) { H.replace({ view: 'cover' }, ''); showView('cover'); return; }
-  go(s.view, s.id, false);
-});
-document.addEventListener('click', e => {
-  const g = e.target.closest('[data-go]'); if (g) go(g.dataset.go);
-  if (e.target.closest('[data-new]')) openEditor(null);
-});
-
-/* ---------- cover & login ---------- */
-let userIn = false;
-document.title = BOOK.title;
-$('#bookTitle').textContent = BOOK.title;
-$('#coverSub').textContent = BOOK.coverLine;
-$('#owners').textContent = BOOK.owners;
-$('#openSeal').innerHTML = sealSVG('s-open');
-if (DEMO){ $('#demoNote').hidden = false; $('#demoBanner').hidden = false; }
-
-$('#openSeal').addEventListener('click', () => {
-  $('#book').classList.add('open');
-  $('#coverHint').hidden = true;
-  if (userIn){ setTimeout(() => { H.replace({ view: 'cover' }); go('contents'); }, reduce ? 50 : 1200); return; }
-  setTimeout(() => (DEMO ? $('#loginBtn') : $('#email')).focus({ preventScroll: true }), reduce ? 50 : 1200);
-});
-const doLogin = async e => {
-  if (e) e.preventDefault();
-  if ($('#loginBtn').disabled) return;
-  const btn = $('#loginBtn'); btn.disabled = true; $('#loginMsg').textContent = '';
-  try {
-    await Store.signIn($('#email').value.trim(), $('#pw').value);
-    userIn = true;
-    memories = await Store.list();
-    H.replace({ view: 'cover' }, '');
-    go('contents');
-  } catch (err){
-    const msg = String((err && err.message) || '');
-    $('#loginMsg').textContent = /invalid login|credentials/i.test(msg)
-      ? 'That email and password don\u2019t match. Try again.'
-      : 'The book couldn\u2019t be reached. Check your connection, then try again.';
-  } finally { btn.disabled = false; }
-};
-$('#loginForm').addEventListener('submit', doLogin);
-$('#loginBtn').addEventListener('click', doLogin);
-['#email', '#pw'].forEach(q => $(q).addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(e); }));
-$('#signOut').addEventListener('click', async () => {
-  await Store.signOut(); userIn = false;
-  $('#book').classList.remove('open'); $('#coverHint').hidden = false;
-  $('#pw').value = '';
-  H.replace({ view: 'cover' }, ''); showView('cover');
-});
 
 /* ---------- contents ---------- */
 function thumb(m, rot){
   const t = el('span', 'thumb'); t.style.setProperty('--r', rot + 'deg');
-  if (m.photos.length){ const i = el('img'); i.src = m.photos[0].url; i.alt = ''; i.loading = 'lazy'; t.append(i); }
+  const c = coverOf(m);
+  if (c){ const i = el('img'); i.src = c; i.alt = ''; i.loading = 'lazy'; i.decoding = 'async'; t.append(i); }
   else { t.classList.add('none'); t.innerHTML = flower; }
   return t;
 }
+function entryRow(m, i){
+  const b = el('button', 'entry'); const d = parseDate(m.date);
+  b.append(thumb(m, i % 2 ? 3 : -3));
+  const txt = el('span'); txt.append(el('span', 't', m.title)); if (m.place) txt.append(el('span', 'p', m.place)); b.append(txt);
+  const dd = el('span', 'd'); dd.append(el('b', null, d.getDate()), el('i', null, DAYS[d.getDay()].slice(0, 3))); b.append(dd);
+  b.addEventListener('click', () => go('memory', m.id));
+  return b;
+}
+const monthKey = m => m.date.slice(0, 7);
+const monthLabel = k => { const [y, mo] = k.split('-').map(Number); return `${MONTHS[mo - 1]} ${y}`; };
+const matches = (m, q) => !q || `${m.title} ${m.place || ''} ${m.note || ''}`.toLowerCase().includes(q);
+
 function renderContents(){
-  const list = sorted(), box = $('#chapters'); box.innerHTML = '';
-  $('#tocCount').textContent = list.length ? `${list.length} ${list.length === 1 ? 'memory' : 'memories'} so far` : '';
-  if (!list.length){
-    const e = el('div', 'empty'); e.append(el('p', null, 'Your book is still empty. Write the first page.'));
-    const b = el('button', 'btn', 'Write the first page'); b.dataset.new = ''; e.append(b); box.append(e);
+  const list = sorted();
+  $('#tocCount').textContent = list.length ? `${plural(list.length, 'memory', 'memories')} so far` : '';
+  document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.view === ui.view)));
+  $('#q').hidden = ui.view === 'calendar';
+  $('#tools').hidden = !list.length;
+  $('#listView').hidden = ui.view !== 'list';
+  $('#photoView').hidden = ui.view !== 'photos';
+  $('#calView').hidden = ui.view !== 'calendar';
+  ['#jumpYears', '#jumpMonths', '#results'].forEach(s => $(s).hidden = true);
+
+  // continue where you left off (once per visit)
+  const slip = $('#contSlip'); slip.hidden = true;
+  const last = LS.get('last'), lastM = list.find(m => m.id === last);
+  if (!ui.slipShown && lastM && list[0] && list[0].id !== last){
+    slip.innerHTML = ''; slip.append(thumb(lastM, 3));
+    const t = el('span'); t.append(el('p', 'when', 'Continue reading'), el('p', 'what', lastM.title)); slip.append(t);
+    slip.onclick = () => { ui.slipShown = true; go('memory', lastM.id); };
+    slip.hidden = false;
   }
-  const groups = {};
-  list.forEach(m => { const k = m.date.slice(0, 7); (groups[k] = groups[k] || []).push(m); });
-  Object.keys(groups).sort().reverse().forEach(k => {
-    const [y, mo] = k.split('-').map(Number);
-    const ch = el('section', 'chapter');
-    ch.append(el('h3', null, `${MONTHS[mo - 1]} ${y}`));
-    ch.append(el('p', 'n', `${groups[k].length} ${groups[k].length === 1 ? 'memory' : 'memories'}`));
-    groups[k].forEach((m, i) => {
-      const b = el('button', 'entry'); const d = parseDate(m.date);
-      b.append(thumb(m, i % 2 ? 3 : -3));
-      const txt = el('span'); txt.append(el('span', 't', m.title)); if (m.place) txt.append(el('span', 'p', m.place)); b.append(txt);
-      const dd = el('span', 'd'); dd.append(el('b', null, d.getDate()), el('i', null, DAYS[d.getDay()].slice(0, 3))); b.append(dd);
-      b.addEventListener('click', () => go('memory', m.id));
-      ch.append(b);
-    });
-    box.append(ch);
-  });
-  const t = todayISO().slice(5), now = new Date().getFullYear();
+
+  // on this day
+  const t = todayISO().slice(5), now = new Date().getFullYear(), o = $('#otd');
   const otd = list.filter(m => m.date.slice(5) === t && Number(m.date.slice(0, 4)) < now);
-  const o = $('#otd');
   if (otd.length){
     const m = otd[0], years = now - Number(m.date.slice(0, 4));
-    o.innerHTML = '';
-    o.append(thumb(m, -4));
-    const txt = el('span'); txt.append(el('p', 'when', 'On this day'), el('p', 'what', `${years} ${years === 1 ? 'year' : 'years'} ago: ${m.title}`));
+    o.innerHTML = ''; o.append(thumb(m, -4));
+    const txt = el('span'); txt.append(el('p', 'when', 'On this day'), el('p', 'what', `${plural(years, 'year', 'years')} ago: ${m.title}`));
     o.append(txt); o.hidden = false; o.onclick = () => go('memory', m.id);
   } else o.hidden = true;
+
+  if (!list.length){
+    const box = $('#listView'); box.innerHTML = ''; box.hidden = false;
+    $('#photoView').hidden = true; $('#calView').hidden = true;
+    const e = el('div', 'empty'); e.append(el('p', null, 'Your book is still empty. Write the first page.'));
+    const b = el('button', 'btn', 'Write the first page'); b.dataset.new = ''; e.append(b); box.append(e);
+    return;
+  }
+  if (ui.view === 'list') renderList(list);
+  else if (ui.view === 'photos') renderPhotos(list);
+  else renderCalendar(list);
 }
+function showResults(n, q){
+  const r = $('#results');
+  if (!q){ r.hidden = true; return; }
+  r.textContent = n ? `${plural(n, 'page', 'pages')} found for \u201C${q}\u201D` : `No pages match \u201C${q}\u201D. Try another word.`;
+  r.hidden = false;
+}
+
+/* list view: years, folding months, quick jump */
+function renderList(list){
+  const q = ui.q.trim().toLowerCase(), items = list.filter(m => matches(m, q));
+  showResults(items.length, ui.q.trim());
+  const box = $('#listView'); box.innerHTML = '';
+  const byYear = {};
+  items.forEach(m => { const y = m.date.slice(0, 4), k = monthKey(m); ((byYear[y] = byYear[y] || {})[k] = byYear[y][k] || []).push(m); });
+  const years = Object.keys(byYear).sort().reverse();
+  if (!years.length) return;
+  if (!ui.open) ui.open = new Set([monthKey(list[0])]);
+  if (!ui.year || !byYear[ui.year]) ui.year = years[0];
+
+  if (!q){
+    const jy = $('#jumpYears'), jm = $('#jumpMonths');
+    if (years.length > 1){
+      jy.innerHTML = '';
+      years.forEach(y => { const c = el('button', 'chip' + (y === ui.year ? ' on' : ''), y);
+        c.addEventListener('click', () => { ui.year = y; renderContents(); const h = document.getElementById('y-' + y); if (h) h.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); });
+        jy.append(c); });
+      jy.hidden = false;
+    }
+    jm.innerHTML = '';
+    Object.keys(byYear[ui.year]).sort().reverse().forEach(k => {
+      const c = el('button', 'chip', MONTHS[Number(k.slice(5)) - 1].slice(0, 3));
+      c.addEventListener('click', () => {
+        ui.open.add(k); const d = document.getElementById('m-' + k);
+        if (d){ d.open = true; d.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); }
+      });
+      jm.append(c);
+    });
+    jm.hidden = false;
+  }
+
+  years.forEach(y => {
+    const h = el('h3', 'year', y); h.id = 'y-' + y; box.append(h);
+    Object.keys(byYear[y]).sort().reverse().forEach(k => {
+      const ms = byYear[y][k];
+      const d = el('details', 'month'); d.id = 'm-' + k;
+      d.open = !!q || ui.open.has(k);
+      const s = el('summary');
+      s.append(el('span', 'mname', MONTHS[Number(k.slice(5)) - 1]));
+      const c = el('span', 'mcount', plural(ms.length, 'memory', 'memories')); c.append(el('span', 'chev', '\u203A')); s.append(c);
+      d.append(s);
+      const rows = el('div', 'rows'); ms.forEach((m, i) => rows.append(entryRow(m, i))); d.append(rows);
+      d.addEventListener('toggle', () => { if (q) return; d.open ? ui.open.add(k) : ui.open.delete(k); });
+      box.append(d);
+    });
+  });
+}
+
+/* photos view */
+function renderPhotos(list){
+  const q = ui.q.trim().toLowerCase(), items = list.filter(m => matches(m, q));
+  showResults(items.length, ui.q.trim());
+  const box = $('#photoView'); box.innerHTML = '';
+  const groups = {};
+  items.forEach(m => (groups[monthKey(m)] = groups[monthKey(m)] || []).push(m));
+  Object.keys(groups).sort().reverse().forEach(k => {
+    box.append(el('h3', 'gmonth', monthLabel(k)));
+    const g = el('div', 'grid');
+    groups[k].forEach(m => {
+      const b = el('button', 'gthumb'); const c = coverOf(m);
+      if (c){ const i = el('img'); i.src = c; i.alt = ''; i.loading = 'lazy'; i.decoding = 'async'; b.append(i); }
+      else { const n = el('span', 'none'); n.innerHTML = flower; b.append(n); }
+      b.append(el('span', 'gt', m.title));
+      const d = parseDate(m.date); b.append(el('span', 'gd', `${d.getDate()} ${MONTHS[d.getMonth()].slice(0, 3)}`));
+      b.addEventListener('click', () => go('memory', m.id));
+      g.append(b);
+    });
+    box.append(g);
+  });
+}
+
+/* calendar view */
+function renderCalendar(list){
+  const box = $('#calView'); box.innerHTML = '';
+  const byDate = {}; list.forEach(m => (byDate[m.date] = byDate[m.date] || []).push(m));
+  if (!ui.calMonth) ui.calMonth = monthKey(list[0]);
+  const [y, mo] = ui.calMonth.split('-').map(Number);
+  const head = el('div', 'cal-head');
+  const prev = el('button', 'ghost', 'Previous'), next = el('button', 'ghost', 'Next');
+  const shift = n => { const d = new Date(y, mo - 1 + n, 1); ui.calMonth = iso(d).slice(0, 7); ui.calDay = null; renderContents(); };
+  prev.addEventListener('click', () => shift(-1)); next.addEventListener('click', () => shift(1));
+  head.append(prev, el('p', 'cal-title', monthLabel(ui.calMonth)), next); box.append(head);
+  const grid = el('div', 'cal');
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(w => grid.append(el('span', 'wd', w)));
+  const first = new Date(y, mo - 1, 1).getDay(), days = new Date(y, mo, 0).getDate(), today = todayISO();
+  for (let i = 0; i < first; i++) grid.append(el('span'));
+  for (let d = 1; d <= days; d++){
+    const key = `${ui.calMonth}-${String(d).padStart(2, '0')}`, has = byDate[key];
+    const c = el('button', 'day' + (has ? ' has' : '') + (key === today ? ' today' : '') + (key === ui.calDay ? ' sel' : ''), d);
+    if (has){
+      c.setAttribute('aria-label', `${d} ${MONTHS[mo - 1]}: ${plural(has.length, 'memory', 'memories')}`);
+      c.addEventListener('click', () => { if (has.length === 1) go('memory', has[0].id); else { ui.calDay = key; renderContents(); } });
+    } else c.disabled = true;
+    grid.append(c);
+  }
+  box.append(grid);
+  const inMonth = list.filter(m => monthKey(m) === ui.calMonth && (!ui.calDay || m.date === ui.calDay));
+  const lst = el('div', 'cal-list');
+  lst.append(el('p', 'results', ui.calDay
+    ? `${plural(inMonth.length, 'memory', 'memories')} on ${parseDate(ui.calDay).getDate()} ${MONTHS[mo - 1]}`
+    : inMonth.length ? `${plural(inMonth.length, 'memory', 'memories')} this month` : 'No memories this month yet.'));
+  inMonth.forEach((m, i) => lst.append(entryRow(m, i)));
+  box.append(lst);
+}
+
+/* tabs + search */
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+  ui.view = t.dataset.view; LS.set('view', ui.view); renderContents();
+}));
+let qTimer = null;
+$('#q').addEventListener('input', e => { clearTimeout(qTimer); qTimer = setTimeout(() => { ui.q = e.target.value; renderContents(); }, 180); });
 $('#randomBtn').addEventListener('click', () => {
   const l = sorted(); if (!l.length) return;
   go('memory', l[Math.floor(Math.random() * l.length)].id);
@@ -609,11 +871,13 @@ function renderMemory(id){
   const m = list[idx]; if (!m) return false;
   current = m;
   const p = $('#page'); p.innerHTML = ''; p.className = 'paper page';
-  p.append(el('p', 'date', longDate(m.date)));
+  const dl = el('p', 'date', longDate(m.date));
+  if (userIn){ const e = el('button', 'link edit-inline', 'Edit'); e.addEventListener('click', () => openEditor(m)); dl.append(e); }
+  p.append(dl);
   p.append(el('h2', null, m.title));
   if (m.place){ const s = el('div', 'stamp', m.place); s.setAttribute('aria-label', 'Place: ' + m.place); p.append(s); }
   if (m.photos.length){
-    const c = el('div', 'collage'); p.append(c);
+    const c = el('div', 'collage'); c.append(el('p', 'loading', 'Loading photos\u2026')); p.append(c);
     layoutCollage(c, m);
   }
   if (m.note){
@@ -622,13 +886,12 @@ function renderMemory(id){
     p.append(n);
   }
   p.append(el('p', 'sign', 'Written by ' + (m.author || 'Carl')));
-  $('#olderBtn').disabled = idx >= list.length - 1;
+  const N = list.length;
+  $('#pagePos').textContent = `Page ${N - idx} of ${N}`;
+  $('#olderBtn').disabled = idx >= N - 1;
   $('#newerBtn').disabled = idx <= 0;
-  $('#olderBtn').style.visibility = idx >= list.length - 1 ? 'hidden' : '';
-  $('#newerBtn').style.visibility = idx <= 0 ? 'hidden' : '';
   return true;
 }
-/* photo layout: keep each photo's real shape, fill rows edge to edge */
 const ratioCache = {};
 function photoRatio(url){
   if (ratioCache[url]) return Promise.resolve(ratioCache[url]);
@@ -642,17 +905,21 @@ function photoRatio(url){
   });
 }
 async function layoutCollage(c, m){
-  const ratios = await Promise.all(m.photos.map(ph => photoRatio(ph.url)));
+  try { await Store.ensureUrls(m); } catch (err){ console.error(err); }
+  const photos = m.photos.filter(p => p.url);
+  const ratios = await Promise.all(photos.map(ph => photoRatio(ph.url)));
   if (!current || current.id !== m.id || !c.isConnected) return;
+  c.innerHTML = '';
+  if (!photos.length){ c.append(el('p', 'loading', 'Photos couldn\u2019t load. Check your connection and reopen this page.')); return; }
   const clamp = r => Math.min(1.9, Math.max(0.62, r));
-  const n = m.photos.length, rows = [];
+  const n = photos.length, rows = [];
   let k = 0;
-  if (n % 2 === 1){ rows.push([0]); k = 1; }          // odd count: first photo gets its own row
+  if (n % 2 === 1){ rows.push([0]); k = 1; }
   for (; k < n; k += 2) rows.push([k, k + 1].filter(x => x < n));
   rows.forEach(row => {
     const r = el('div', 'crow');
     row.forEach(i => {
-      const ph = m.photos[i], ar = clamp(ratios[i]);
+      const ph = photos[i], ar = clamp(ratios[i]);
       const b = el('button', 'snap');
       b.style.flex = `${ar.toFixed(3)} 1 0%`;
       b.style.setProperty('--ar', ar.toFixed(3));
@@ -662,7 +929,7 @@ async function layoutCollage(c, m){
       if (row.length === 1) b.style.maxWidth = ar >= 1 ? '100%' : Math.round(440 * ar) + 'px';
       b.setAttribute('aria-label', `Open photo ${i + 1} of ${n}`);
       const img = el('img'); img.src = ph.url; img.alt = ''; img.decoding = 'async'; b.append(img);
-      b.addEventListener('click', () => openLightbox(m.photos, i));
+      b.addEventListener('click', () => openLightbox(photos, i));
       r.append(b);
     });
     c.append(r);
@@ -672,7 +939,7 @@ async function turn(dir){
   const list = sorted(); const idx = list.findIndex(m => m.id === current.id);
   const next = list[idx + dir]; if (!next) return;
   const p = $('#page');
-  if (!reduce){ p.classList.add(dir > 0 ? 'out-l' : 'out-r'); await wait(280); }
+  if (!reduce){ p.classList.add(dir > 0 ? 'out-l' : 'out-r'); await wait(260); }
   go('memory', next.id);
   if (!reduce){
     p.classList.add(dir > 0 ? 'out-r' : 'out-l');
@@ -681,7 +948,6 @@ async function turn(dir){
 }
 $('#olderBtn').addEventListener('click', () => turn(1));
 $('#newerBtn').addEventListener('click', () => turn(-1));
-$('#editBtn').addEventListener('click', () => current && openEditor(current));
 (() => {
   let sx = 0, sy = 0, on = false;
   const p = $('#page');
@@ -698,7 +964,7 @@ $('#editBtn').addEventListener('click', () => current && openEditor(current));
 let lb = { list: [], i: 0 };
 function showLb(){ $('#lbImg').src = lb.list[lb.i].url; $('#lbCount').textContent = `${lb.i + 1} of ${lb.list.length}`;
   $('#lbPrev').style.visibility = lb.list.length > 1 ? '' : 'hidden'; $('#lbNext').style.visibility = lb.list.length > 1 ? '' : 'hidden'; }
-function openLightbox(list, i){ lb = { list, i }; showLb(); $('#lightbox').hidden = false; H.push({ overlay: 'lb' }, ''); $('#lbClose').focus(); }
+function openLightbox(list, i){ lb = { list, i }; showLb(); $('#lightbox').hidden = false; H.push({ overlay: 'lb' }); $('#lbClose').focus(); }
 function closeLightbox(back = true){ $('#lightbox').hidden = true; if (back) H.back(); }
 const lbStep = d => { lb.i = (lb.i + d + lb.list.length) % lb.list.length; showLb(); };
 $('#lbPrev').addEventListener('click', () => lbStep(-1));
@@ -714,14 +980,14 @@ document.addEventListener('keydown', e => {
   if (!$('#lightbox').hidden){
     if (e.key === 'Escape') closeLightbox(); if (e.key === 'ArrowRight') lbStep(1); if (e.key === 'ArrowLeft') lbStep(-1);
   } else if (!$('#editorWrap').hidden){ if (e.key === 'Escape') closeEditor(); }
-  else if ($('#memory').classList.contains('active')){
+  else if ($('#memory').classList.contains('active') && !/input|textarea/i.test(document.activeElement.tagName)){
     if (e.key === 'ArrowRight') turn(1); if (e.key === 'ArrowLeft') turn(-1);
   }
 });
 
 /* ---------- editor ---------- */
 let ed = { id: null, keep: [], add: [] };
-function renderPhotos(){
+function renderPhotos_ed(){
   const box = $('#fPhotos'); box.innerHTML = '';
   const all = [...ed.keep.map(p => ({ url: p.url, kind: 'keep', ref: p })), ...ed.add.map(a => ({ url: a.url, kind: 'add', ref: a }))];
   all.forEach((p, i) => {
@@ -730,7 +996,7 @@ function renderPhotos(){
     r.addEventListener('click', () => {
       if (p.kind === 'keep') ed.keep = ed.keep.filter(x => x !== p.ref);
       else { URL.revokeObjectURL(p.ref.url); ed.add = ed.add.filter(x => x !== p.ref); }
-      renderPhotos();
+      renderPhotos_ed();
     });
     f.append(r); box.append(f);
   });
@@ -738,30 +1004,32 @@ function renderPhotos(){
   const inp = el('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = true; lab.append(inp);
   inp.addEventListener('change', async () => {
     const files = [...inp.files]; if (!files.length) return;
-    $('#edMsg').textContent = 'Preparing photos…';
-    for (const f of files){
-      try { const blob = await compress(f); ed.add.push({ blob, url: URL.createObjectURL(blob) }); }
-      catch { $('#edMsg').textContent = `${f.name} couldn\u2019t be read. Try a JPG or PNG.`; }
+    let bad = 0;
+    for (let i = 0; i < files.length; i++){
+      $('#edMsg').textContent = `Preparing photo ${i + 1} of ${files.length}\u2026`;
+      try { const blob = await compress(files[i]); ed.add.push({ blob, url: URL.createObjectURL(blob) }); }
+      catch { bad++; }
     }
-    if ($('#edMsg').textContent === 'Preparing photos…') $('#edMsg').textContent = '';
-    renderPhotos();
+    $('#edMsg').textContent = bad ? `${plural(bad, 'photo', 'photos')} couldn\u2019t be read. Try JPG or PNG.` : '';
+    renderPhotos_ed();
   });
   box.append(lab);
 }
-function openEditor(m){
-  ed = { id: m ? m.id : null, keep: m ? [...m.photos] : [], add: [] };
+async function openEditor(m){
+  if (m){ try { await Store.ensureUrls(m); } catch {} }
+  ed = { id: m ? m.id : null, keep: m ? m.photos.filter(p => p.url) : [], add: [] };
   $('#edTitle').textContent = m ? 'Edit this page' : 'A new page';
   $('#fDate').value = m ? m.date : todayISO();
   $('#fTitle').value = m ? m.title : '';
   $('#fPlace').value = m ? (m.place || '') : '';
   $('#fNote').value = m ? (m.note || '') : '';
   $('#saveBtn').textContent = m ? 'Save changes' : 'Seal this page';
-  $('#delBtn').hidden = !m;
+  $('#delBtn').hidden = !m; $('#delBtn').textContent = 'Delete this page'; delete $('#delBtn').dataset.armed;
   $('#edMsg').textContent = '';
-  renderPhotos();
+  renderPhotos_ed();
   $('#editorWrap').hidden = false; $('#editorWrap').scrollTop = 0;
   document.body.style.overflow = 'hidden';
-  H.push({ overlay: 'ed' }, '');
+  H.push({ overlay: 'ed' });
   setTimeout(() => $('#fTitle').focus({ preventScroll: true }), 50);
 }
 function closeEditor(back = true){
@@ -771,14 +1039,16 @@ function closeEditor(back = true){
 $('#cancelBtn').addEventListener('click', () => closeEditor());
 const doSave = async e => {
   if (e) e.preventDefault();
-  if ($('#saveBtn').disabled) return;
+  const btn = $('#saveBtn'); if (btn.disabled) return;
   const date = $('#fDate').value, title = $('#fTitle').value.trim();
   if (!date){ $('#edMsg').textContent = 'Pick a date for this page.'; $('#fDate').focus(); return; }
   if (!title){ $('#edMsg').textContent = 'Add a title for this page.'; $('#fTitle').focus(); return; }
-  const btn = $('#saveBtn'); btn.disabled = true; const label = btn.textContent; btn.textContent = 'Saving…';
+  btn.disabled = true; const label = btn.textContent; btn.textContent = 'Saving\u2026'; $('#edMsg').textContent = '';
   try {
-    const rec = await Store.save({ id: ed.id, date, title, place: $('#fPlace').value.trim(), note: $('#fNote').value.trim() }, ed.keep, ed.add.map(a => a.blob));
-    memories = await Store.list();
+    const rec = await Store.save({ id: ed.id, date, title, place: $('#fPlace').value.trim(), note: $('#fNote').value.trim() },
+      ed.keep, ed.add.map(a => a.blob), (i, n) => { btn.textContent = `Uploading ${i} of ${n}\u2026`; });
+    btn.textContent = 'Saving\u2026';
+    await loadMemories();
     closeEditor(false);
     await sealedMoment(label === 'Save changes' ? 'Saved' : 'Sealed');
     H.back();
@@ -797,11 +1067,13 @@ $('#delBtn').addEventListener('click', async () => {
     setTimeout(() => { delete b.dataset.armed; b.textContent = 'Delete this page'; }, 4000);
     return;
   }
-  delete b.dataset.armed; b.textContent = 'Delete this page';
-  await Store.remove(ed.id);
-  memories = await Store.list();
-  closeEditor(false); H.back();
-  setTimeout(() => go('contents'), 30);
+  delete b.dataset.armed; b.textContent = 'Deleting\u2026';
+  try {
+    await Store.remove(ed.id);
+    await loadMemories();
+    closeEditor(false); H.back();
+    setTimeout(() => go('contents'), 30);
+  } catch (err){ console.error(err); $('#edMsg').textContent = 'This page couldn\u2019t be deleted. Try again.'; b.textContent = 'Delete this page'; }
 });
 async function sealedMoment(word){
   const s = el('div', 'sealed'); const inner = el('div'); inner.innerHTML = sealSVG('s-done'); inner.append(el('p', null, word));
@@ -818,7 +1090,7 @@ if (LIB_MISSING){ $('#loginMsg').textContent = 'The book couldn\u2019t load. Che
   try {
     const u = await Store.session();
     if (u){
-      userIn = true; memories = await Store.list();
+      userIn = true; await loadMemories();
       $('#coverHint').textContent = 'Tap the seal to open your book';
     }
   } catch (err){ console.error(err); }

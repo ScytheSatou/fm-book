@@ -220,6 +220,18 @@ body.has-turn main{padding-bottom:84px}
 .dedi p{font-size:19px;line-height:1.8;margin:0 0 1em}
 .dedi .sig{font-family:var(--script);font-size:clamp(34px,9vw,44px);text-align:right;margin:18px 0 0;color:var(--ink-soft)}
 .toc-foot{margin-top:22px;display:flex;gap:22px;justify-content:center;flex-wrap:wrap}
+/* ---------- seen + hearts ---------- */
+.page-foot{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-top:14px;flex-wrap:wrap}
+.page-foot .sign{margin:0}
+.react{display:flex;flex-direction:column;gap:6px}
+.heart{border:1px solid var(--rule);background:transparent;border-radius:999px;padding:7px 16px;font-size:15px;font-style:italic;cursor:pointer;color:var(--ink-soft);display:inline-flex;gap:7px;align-items:center;align-self:flex-start;transition:background .2s,color .2s,transform .15s}
+.heart:active{transform:scale(.96)}
+.heart .h{font-style:normal;font-size:16px;line-height:1}
+.heart[aria-pressed="true"]{background:var(--seal);color:#F7EAE2;border-color:var(--seal)}
+.react-text{font-style:italic;font-size:14px;color:var(--ink-soft);margin:0;min-height:1.2em}
+.seen{font-style:italic;font-size:14px;color:var(--ink-soft);text-align:right;margin:8px 0 0}
+.tag-new{display:inline-block;margin-left:8px;font-size:11px;font-style:normal;background:var(--seal);color:#F7EAE2;border-radius:999px;padding:1px 8px;vertical-align:2px;letter-spacing:.02em}
+.hm{color:var(--seal);font-size:13px;margin-left:6px;font-style:normal}
 /* ---------- favorites ---------- */
 .ribbon{position:absolute;top:-4px;left:14px;width:24px;height:42px;border:0;padding:0;background:none;cursor:pointer;filter:drop-shadow(0 3px 3px rgba(60,5,20,.35));transition:transform .2s}
 .ribbon span{display:block;width:100%;height:100%;background:rgba(140,28,46,.2);clip-path:polygon(0 0,100% 0,100% 100%,50% 76%,0 100%);transition:background .25s}
@@ -507,9 +519,11 @@ function sampleData(){
 }
 
 const DemoStore = {
-  data: sampleData().map((m, i) => ({ ...m, favorite: i === 0 })), user: null,
+  data: sampleData().map((m, i) => ({ ...m, favorite: i === 0, authorId: i === 1 ? 'demo-madam' : 'demo-carl', author: i === 1 ? 'Madam' : 'Carl',
+    views: i === 0 ? [{ user_id: 'demo-madam', first_seen: new Date(Date.now() - 864e5).toISOString() }] : [],
+    hearts: i === 0 ? ['demo-madam'] : [] })), user: null,
   async session(){ return this.user; },
-  async signIn(){ this.user = { name: 'Carl' }; return this.user; },
+  async signIn(){ this.user = { id: 'demo-carl', name: 'Carl' }; names['demo-carl'] = 'Carl'; names['demo-madam'] = 'Madam'; return this.user; },
   async signOut(){ this.user = null; },
   async list(){ return this.data.map(m => ({ ...m, photos: m.photos.map(p => ({ ...p })) })); },
   async ensureUrls(){},
@@ -522,11 +536,13 @@ const DemoStore = {
     }
     const photos = [...keep.map(p => ({ id: p.id, url: p.url })), ...added];
     if (m.id){ const i = this.data.findIndex(x => x.id === m.id); this.data[i] = { ...this.data[i], ...m, photos }; return this.data[i]; }
-    const rec = { ...m, id: 'm' + Date.now(), author: 'Carl', created: new Date().toISOString(), photos };
+    const rec = { ...m, id: 'm' + Date.now(), author: 'Carl', authorId: 'demo-carl', views: [], hearts: [], created: new Date().toISOString(), photos };
     this.data.push(rec); return rec;
   },
   async remove(id){ this.data = this.data.filter(m => m.id !== id); },
-  async setFavorite(id, val){ const m = this.data.find(x => x.id === id); if (m) m.favorite = val; }
+  async setFavorite(id, val){ const m = this.data.find(x => x.id === id); if (m) m.favorite = val; },
+  async recordView(id){ const m = this.data.find(x => x.id === id); if (m && !m.views.some(v => v.user_id === me)) m.views.push({ user_id: me, first_seen: new Date().toISOString() }); },
+  async setHeart(id, on){ const m = this.data.find(x => x.id === id); if (!m) return; m.hearts = m.hearts.filter(u => u !== me); if (on) m.hearts.push(me); }
 };
 
 /* ---------- data: Supabase store ---------- */
@@ -552,15 +568,22 @@ const SupaStore = {
   },
   async signOut(){ await sb.auth.signOut(); },
   async list(){
-    const [mem, mb] = await Promise.all([
+    const [mem, mb, pv, ph] = await Promise.all([
       sb.from('memories').select('id,date,title,place,note,favorite,author_id,created_at,memory_photos(id,path,position)').order('date', { ascending: false }),
-      sb.from('members').select('user_id,display_name')
+      sb.from('members').select('user_id,display_name'),
+      sb.from('page_views').select('memory_id,user_id,first_seen'),
+      sb.from('page_hearts').select('memory_id,user_id')
     ]);
     if (mem.error) throw mem.error;
+    social = !pv.error && !ph.error;
+    const viewsBy = {}, heartsBy = {};
+    (pv.data || []).forEach(v => (viewsBy[v.memory_id] = viewsBy[v.memory_id] || []).push(v));
+    (ph.data || []).forEach(h => (heartsBy[h.memory_id] = heartsBy[h.memory_id] || []).push(h.user_id));
     (mb.data || []).forEach(m => names[m.user_id] = m.display_name);
     const rows = mem.data.map(m => ({
       id: m.id, date: m.date, title: m.title, place: m.place || '', note: m.note || '',
-      author: names[m.author_id] || '', created: m.created_at, favorite: !!m.favorite,
+      author: names[m.author_id] || '', authorId: m.author_id, created: m.created_at, favorite: !!m.favorite,
+      views: viewsBy[m.id] || [], hearts: heartsBy[m.id] || [],
       photos: (m.memory_photos || []).sort((a, b) => a.position - b.position).map(p => ({ id: p.id, path: p.path, url: null }))
     }));
     await signPaths(rows.filter(m => m.photos.length).map(m => m.photos[0].path));   // covers only
@@ -605,6 +628,16 @@ const SupaStore = {
     }
     return { id };
   },
+  async recordView(id){
+    const { error } = await sb.from('page_views').upsert({ memory_id: id, user_id: me, last_seen: new Date().toISOString() }, { onConflict: 'memory_id,user_id' });
+    if (error) throw error;
+  },
+  async setHeart(id, on){
+    const q = on ? sb.from('page_hearts').insert({ memory_id: id, user_id: me })
+                 : sb.from('page_hearts').delete().eq('memory_id', id).eq('user_id', me);
+    const { error } = await q;
+    if (error) throw error;
+  },
   async setFavorite(id, val){
     const { error } = await sb.from('memories').update({ favorite: val }).eq('id', id);
     if (error) throw error;
@@ -619,7 +652,7 @@ const SupaStore = {
 const Store = DEMO ? DemoStore : SupaStore;
 
 /* ---------- state ---------- */
-let memories = [], current = null, userIn = false;
+let memories = [], current = null, userIn = false, me = null, social = true;
 const ui = {
   view: ['list', 'photos', 'calendar', 'favorites'].includes(LS.get('view')) ? LS.get('view') : 'list',
   q: '', year: null, open: null, contentsY: 0, slipShown: false, calMonth: null, calDay: null
@@ -691,7 +724,8 @@ const doLogin = async e => {
   const btn = $('#loginBtn'); if (btn.disabled) return;
   btn.disabled = true; $('#loginMsg').textContent = '';
   try {
-    await Store.signIn($('#email').value.trim(), $('#pw').value);
+    const u = await Store.signIn($('#email').value.trim(), $('#pw').value);
+    me = u && u.id;
     btn.textContent = 'Opening\u2026';
     userIn = true;
     await loadMemories();
@@ -740,11 +774,18 @@ function thumb(m, rot){
 function entryRow(m, i){
   const b = el('button', 'entry' + (m.favorite ? ' is-fav' : '')); const d = parseDate(m.date);
   b.append(thumb(m, i % 2 ? 3 : -3));
-  const txt = el('span'); txt.append(el('span', 't', m.title)); if (m.place) txt.append(el('span', 'p', m.place)); b.append(txt);
+  const tt = el('span', 't', m.title);
+  if (social && m.hearts && m.hearts.length) tt.append(el('span', 'hm', '\u2665'));
+  if (isNewForMe(m)) tt.append(el('span', 'tag-new', 'New'));
+  const txt = el('span'); txt.append(tt); if (m.place) txt.append(el('span', 'p', m.place)); b.append(txt);
   const dd = el('span', 'd'); dd.append(el('b', null, d.getDate()), el('i', null, DAYS[d.getDay()].slice(0, 3))); b.append(dd);
   b.addEventListener('click', () => go('memory', m.id));
   return b;
 }
+function isNewForMe(m){
+  return social && me && m.authorId && m.authorId !== me && !(m.views || []).some(v => v.user_id === me);
+}
+const shortDate = iso => { const d = new Date(iso); return `${d.getDate()} ${MONTHS[d.getMonth()].slice(0, 3)}`; };
 const monthKey = m => m.date.slice(0, 7);
 const monthLabel = k => { const [y, mo] = k.split('-').map(Number); return `${MONTHS[mo - 1]} ${y}`; };
 const matches = (m, q) => !q || `${m.title} ${m.place || ''} ${m.note || ''}`.toLowerCase().includes(q);
@@ -963,7 +1004,43 @@ function renderMemory(id){
     m.note.split(/\n\s*\n/).forEach(par => n.append(el('p', null, par.trim())));
     p.append(n);
   }
-  p.append(el('p', 'sign', 'Written by ' + (m.author || 'Carl')));
+  const foot = el('div', 'page-foot');
+  const react = el('div', 'react');
+  if (userIn && social){
+    const hb = el('button', 'heart'); hb.type = 'button';
+    const rt = el('p', 'react-text'); rt.setAttribute('aria-live', 'polite');
+    const paint = () => {
+      const mine = m.hearts.includes(me), others = m.hearts.filter(u => u !== me).map(u => names[u] || 'Someone');
+      hb.setAttribute('aria-pressed', String(mine));
+      hb.innerHTML = ''; hb.append(el('span', 'h', mine ? '\u2665' : '\u2661'), el('span', null, mine ? 'Loved' : 'Love this'));
+      rt.textContent = mine && others.length ? 'You both loved this' : mine ? 'You loved this' : others.length ? `${others.join(' and ')} loved this` : '';
+    };
+    paint();
+    hb.addEventListener('click', async () => {
+      const on = !m.hearts.includes(me);
+      m.hearts = m.hearts.filter(u => u !== me); if (on) m.hearts.push(me);
+      const live = memories.find(x => x.id === m.id); if (live) live.hearts = m.hearts;
+      paint();
+      try { await Store.setHeart(m.id, on); }
+      catch (err){ console.error(err); m.hearts = m.hearts.filter(u => u !== me); if (!on) m.hearts.push(me); if (live) live.hearts = m.hearts; paint(); rt.textContent = 'This couldn\u2019t be saved. Try again.'; }
+    });
+    react.append(hb, rt);
+  }
+  foot.append(react, el('p', 'sign', 'Written by ' + (m.author || 'Carl')));
+  p.append(foot);
+  if (userIn && social && me){
+    const others = Object.keys(names).filter(id => id !== me && id !== m.authorId);
+    if (others.length){
+      const parts = others.map(id => { const v = (m.views || []).find(x => x.user_id === id);
+        return v ? `Seen by ${names[id]} on ${shortDate(v.first_seen)}` : `Not seen by ${names[id]} yet`; });
+      p.append(el('p', 'seen', parts.join('. ')));
+    }
+    if (!(m.views || []).some(v => v.user_id === me)){
+      m.views = [...(m.views || []), { user_id: me, first_seen: new Date().toISOString() }];
+      const live = memories.find(x => x.id === m.id); if (live) live.views = m.views;
+      Store.recordView(m.id).catch(err => console.error(err));
+    }
+  }
   const N = list.length;
   $('#pagePos').textContent = `Page ${N - idx} of ${N}`;
   $('#olderBtn').disabled = idx >= N - 1;
@@ -1168,7 +1245,7 @@ if (LIB_MISSING){ $('#loginMsg').textContent = 'The book couldn\u2019t load. Che
   try {
     const u = await Store.session();
     if (u){
-      userIn = true; await loadMemories();
+      me = u.id; userIn = true; await loadMemories();
       $('#coverHint').textContent = 'Tap the seal to open your book';
     }
   } catch (err){ console.error(err); }

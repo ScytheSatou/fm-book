@@ -576,6 +576,8 @@ const SupaStore = {
     ]);
     if (mem.error) throw mem.error;
     social = !pv.error && !ph.error;
+    socialErr = social ? '' : String((pv.error || ph.error).message || (pv.error || ph.error).code || 'unknown error');
+    if (!social) console.error('Hearts/views unavailable:', pv.error, ph.error);
     const viewsBy = {}, heartsBy = {};
     (pv.data || []).forEach(v => (viewsBy[v.memory_id] = viewsBy[v.memory_id] || []).push(v));
     (ph.data || []).forEach(h => (heartsBy[h.memory_id] = heartsBy[h.memory_id] || []).push(h.user_id));
@@ -652,14 +654,31 @@ const SupaStore = {
 const Store = DEMO ? DemoStore : SupaStore;
 
 /* ---------- state ---------- */
-let memories = [], current = null, userIn = false, me = null, social = true;
+let memories = [], current = null, userIn = false, me = null, social = true, socialErr = '';
 const ui = {
   view: ['list', 'photos', 'calendar', 'favorites'].includes(LS.get('view')) ? LS.get('view') : 'list',
   q: '', year: null, open: null, contentsY: 0, slipShown: false, calMonth: null, calDay: null
 };
 const sorted = () => [...memories].sort((a, b) => b.date.localeCompare(a.date) || String(b.created || b.id).localeCompare(String(a.created || a.id)));
 const coverOf = m => (m.photos[0] && m.photos[0].url) || null;
-async function loadMemories(){ memories = await Store.list(); }
+let lastLoad = 0, refreshing = false;
+async function loadMemories(){ memories = await Store.list(); lastLoad = Date.now(); }
+/* keep the book fresh: reload pages, hearts and "seen by" whenever the book is opened or you come back to it */
+async function refreshIfStale(minAge = 15000){
+  if (!userIn || refreshing || Date.now() - lastLoad < minAge) return;
+  if (!$('#editorWrap').hidden || !$('#lightbox').hidden) return;
+  refreshing = true;
+  try {
+    await loadMemories();
+    const v = document.querySelector('.view.active'), y = window.scrollY;
+    if (v && v.id === 'contents'){ renderContents(); window.scrollTo(0, y); }
+    else if (v && v.id === 'memory' && current){ if (renderMemory(current.id)) window.scrollTo(0, y); }
+  } catch (err){ console.error(err); }
+  finally { refreshing = false; }
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refreshIfStale(); });
+addEventListener('focus', () => refreshIfStale());
+addEventListener('pageshow', e => { if (e.persisted) refreshIfStale(0); });
 
 /* ---------- navigation ---------- */
 function showView(id){
@@ -675,7 +694,7 @@ function go(view, id, push = true, opts = {}){
   else if (view === 'memory' && renderMemory(id)){
     showView('memory'); window.scrollTo(0, 0); LS.set('last', id);
   } else if (view === 'contents' || view === 'memory'){
-    renderContents(); showView('contents');
+    renderContents(); showView('contents'); setTimeout(() => refreshIfStale(60000), 0);
     const y = opts.top ? 0 : ui.contentsY;
     requestAnimationFrame(() => window.scrollTo(0, y));
     view = 'contents';
@@ -1028,6 +1047,7 @@ function renderMemory(id){
   }
   foot.append(react, el('p', 'sign', 'Written by ' + (m.author || 'Carl')));
   p.append(foot);
+  if (userIn && !social && socialErr) p.append(el('p', 'seen', 'Hearts couldn\u2019t load: ' + socialErr));
   if (userIn && social && me){
     const others = Object.keys(names).filter(id => id !== me && id !== m.authorId);
     if (others.length){

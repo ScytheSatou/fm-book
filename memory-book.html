@@ -1137,7 +1137,7 @@ function renderMemory(id){
   return true;
 }
 /* ---------- little notes ---------- */
-const RX = [['like', '\uD83D\uDC4D', 'Like'], ['heart', '\u2764\uFE0F', 'Heart'], ['sad', '\uD83D\uDE22', 'Sad'], ['cry', '\uD83D\uDE2D', 'Cry'], ['angry', '\uD83D\uDE20', 'Angry']];
+const RX = [['like', '\uD83D\uDC4D', 'Like'], ['heart', '\u2764\uFE0F', 'Heart'], ['haha', '\uD83D\uDE06', 'Haha'], ['sad', '\uD83D\uDE22', 'Sad'], ['cry', '\uD83D\uDE2D', 'Cry'], ['angry', '\uD83D\uDE20', 'Angry']];
 const rxEmoji = k => (RX.find(r => r[0] === k) || [, '\u2764\uFE0F'])[1];
 function ago(iso){
   const d = new Date(iso), s = (Date.now() - d.getTime()) / 1000;

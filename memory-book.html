@@ -253,6 +253,7 @@ body.has-turn main{padding-bottom:84px}
 .rx-picker button{border:1px solid var(--rule);background:#FBF6F1;border-radius:999px;padding:4px 10px;font-size:20px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
 .rx-picker button span{font-size:12px;font-style:italic;color:var(--ink-soft)}
 .rx-picker button[aria-pressed="true"]{border-color:var(--seal);background:rgba(140,28,46,.1)}
+.rx-picker .rx-remove{border:0;background:none;font-size:13px;font-style:italic;color:var(--seal);text-decoration:underline;text-underline-offset:3px;padding:4px 6px}
 .cmt-form{margin-top:6px}
 .cmt-form textarea,.cmt textarea{width:100%;min-height:76px;resize:vertical;background:transparent;border:0;border-bottom:1.5px solid var(--ink-soft);color:var(--ink);font:inherit;font-size:17px;line-height:28px;padding:0 2px;
   background-image:repeating-linear-gradient(to bottom,transparent 0 27px,var(--rule) 27px 28px);background-attachment:local}
@@ -1175,7 +1176,7 @@ function renderNotes(m){
       chip.title = `${who.join(' and ')} reacted`; foot.append(chip);
     });
     const myRx = (c.reactions.find(r => r.user_id === me) || {}).emoji;
-    const rb = el('button', 'rx-btn' + (myRx ? ' on' : ''), myRx ? `${rxEmoji(myRx)} Reacted` : 'React'); rb.type = 'button';
+    const rb = el('button', 'rx-btn', myRx ? 'Change' : 'React'); rb.type = 'button';
     rb.setAttribute('aria-expanded', 'false');
     foot.append(rb);
     foot.append(el('span', 'spacer'));
@@ -1208,18 +1209,24 @@ function renderNotes(m){
     box.append(foot);
 
     const picker = el('div', 'rx-picker'); picker.hidden = true;
+    const applyRx = async next => {
+      const prev = c.reactions.slice();
+      c.reactions = c.reactions.filter(r => r.user_id !== me); if (next) c.reactions.push({ user_id: me, emoji: next });
+      syncLive(m); const fresh = redraw();
+      try { await Store.setReaction(c.id, next); }
+      catch (err){ console.error(err); c.reactions = prev; syncLive(m); const f2 = redraw(); const n = f2.querySelector('.notes-sub'); if (n) n.textContent = 'That reaction couldn\u2019t be saved. Try again.'; }
+    };
     RX.forEach(([k, e, label]) => {
       const b = el('button'); b.type = 'button'; b.setAttribute('aria-pressed', String(myRx === k)); b.setAttribute('aria-label', label);
       b.append(e, el('span', null, label));
-      b.addEventListener('click', async () => {
-        const prev = c.reactions.slice(), next = myRx === k ? null : k;
-        c.reactions = c.reactions.filter(r => r.user_id !== me); if (next) c.reactions.push({ user_id: me, emoji: next });
-        syncLive(m); redraw();
-        try { await Store.setReaction(c.id, next); }
-        catch (err){ console.error(err); c.reactions = prev; syncLive(m); redraw(); }
-      });
+      b.addEventListener('click', () => applyRx(myRx === k ? null : k));
       picker.append(b);
     });
+    if (myRx){
+      const rm = el('button', 'rx-remove', 'Remove my reaction'); rm.type = 'button';
+      rm.addEventListener('click', () => applyRx(null));
+      picker.append(rm);
+    }
     box.append(picker);
     rb.addEventListener('click', () => { picker.hidden = !picker.hidden; rb.setAttribute('aria-expanded', String(!picker.hidden)); });
     list.append(box);
